@@ -2956,6 +2956,8 @@
              return new Blob(parts, opts);
         }
 
+        // Note: Modal events are part of setupCoreEvents or should be separate init
+        function setupModalEvents() {
             const backdrop = document.getElementById("modal-backdrop");
             document.getElementById("modal-close").addEventListener("click", function () {
                 backdrop.style.display = "none";
@@ -2973,9 +2975,11 @@
             });
         }
 
+
         document.addEventListener("DOMContentLoaded", function () {
             loadComponentsIndex();
             setupCoreEvents();
+            setupModalEvents(); // Added modal init
             buildTables();
             updateSWInputType(); // Initialize SW field type based on default mfr (empty)
             recalculateAll();
