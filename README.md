@@ -70,12 +70,13 @@
    ```
 
 2. 在浏览器中访问:
-   - **轿厢重量计算器**: [http://localhost:3000/car_weight_calculator](http://localhost:3000/car_weight_calculator)
-   - **组件重量计算器**: [http://localhost:3000/component_weight_calculator](http://localhost:3000/component_weight_calculator)
+   - **轿厢重量计算器 (本地)**: [http://localhost:3000/](http://localhost:3000/)
+   - **组件重量计算器 (本地)**: [http://localhost:3000/component_weight_calculator](http://localhost:3000/component_weight_calculator)
+   - **在线预览 (GitHub Pages)**: [https://harrypotterczr.github.io/car-weight-calculator](https://harrypotterczr.github.io/car-weight-calculator)
 
 ## 文件结构
 
-- `car_weight_calculator.html`: 轿厢重量计算主界面。
+- `index.html`: 轿厢重量计算主界面 (原 car_weight_calculator.html)。
 - `server.js`: Node.js 后端服务器。
 - `formulas_optimized.json`: 包含计算公式和参数定义的配置文件。
 - `Random Forest Models/`: 存放预训练的机器学习模型文件 (`.pkl`)。

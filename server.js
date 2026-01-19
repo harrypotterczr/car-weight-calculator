@@ -11,8 +11,12 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.static('.'));
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get('/car_weight_calculator', (req, res) => {
-    res.sendFile(path.join(__dirname, 'car_weight_calculator.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/component_weight_calculator', (req, res) => {
