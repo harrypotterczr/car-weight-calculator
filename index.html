@@ -2865,24 +2865,52 @@
                     timestamp: new Date().toISOString()
                 };
 
-                // 4. Download JSON (Client-side Archive)
+                // 4. Archive Data
+                // Try to use backend API first (for local environment)
                 try {
                     const btn = document.getElementById("archive-btn");
                     const originalText = btn.textContent;
-                    btn.textContent = "下载中...";
+                    btn.textContent = "归档中...";
                     btn.disabled = true;
 
-                    const projectNo = data.projectParams.projectNo || "archive";
-                    downloadJSON(data, `轿厢重量_${projectNo}_${new Date().toISOString().slice(0,10)}.json`);
+                    // Try backend API
+                    const res = await fetch("/api/archive", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
 
-                    showToast("归档数据已生成下载", false);
-
+                    if (res.ok) {
+                        showToast("归档成功！数据已保存到服务器。", false);
+                    } else {
+                        // If backend fails (e.g. 404 or 500), throw to catch block for fallback
+                        throw new Error("Backend archive failed");
+                    }
+                    
                     btn.textContent = originalText;
                     btn.disabled = false;
                 } catch (e) {
-                    showToast("下载失败: " + e.message, true);
-                    document.getElementById("archive-btn").disabled = false;
-                    document.getElementById("archive-btn").textContent = "轿厢重量归档";
+                    console.warn("Backend archive unavailable, falling back to download:", e);
+                    // Fallback to client-side download
+                    try {
+                        const btn = document.getElementById("archive-btn");
+                        const originalText = btn.textContent; // Might be "归档中..." if failed above
+                        // Reset text if needed, but we are inside flow
+                        
+                        const projectNo = data.projectParams.projectNo || "archive";
+                        downloadJSON(data, `轿厢重量_${projectNo}_${new Date().toISOString().slice(0,10)}.json`);
+
+                        showToast("归档数据已生成下载 (本地服务不可用)", false);
+
+                        btn.textContent = "轿厢重量归档";
+                        btn.disabled = false;
+                    } catch (downloadError) {
+                        showToast("下载失败: " + downloadError.message, true);
+                        document.getElementById("archive-btn").disabled = false;
+                        document.getElementById("archive-btn").textContent = "轿厢重量归档";
+                    }
                 }
             });
         }
@@ -2895,44 +2923,59 @@
                 summary: []
             };
             
-            // Collect Basic
-            BASIC_CONFIG.forEach(item => {
-                const row = document.querySelector(`.table-row[data-section='basic'][data-key='${item.key}']`);
-                if (row) {
-                    const unit = parseNumber(row.querySelector("input[data-role='unit']").value);
-                    const qty = parseNumber(row.querySelector("input[data-role='quantity']").value);
-                    const drawing = row.querySelector("input[data-role='drawing']").value;
-                    const total = parseNumber(row.querySelector("div[data-role='total']").textContent);
-                    weights.basic[item.key] = {
-                        name: item.name,
-                        drawing: drawing,
-                        unit: unit,
-                        qty: qty,
-                        total: total
+            // Collect Basic - iterate through DOM elements directly
+            const basicRows = document.querySelectorAll(".table-row[data-section='basic']");
+            basicRows.forEach(row => {
+                const key = row.dataset.key;
+                // Try to find name from config, or fallback to DOM content if possible, or just key
+                // Ideally we want the readable name. 
+                // We can find the name label in the row.
+                const nameLabel = row.querySelector(".cell-label");
+                const name = nameLabel ? nameLabel.childNodes[0].textContent.trim() : key;
+                
+                const unitInput = row.querySelector("input[data-role='unit']");
+                const qtyInput = row.querySelector("input[data-role='quantity']");
+                const drawingInput = row.querySelector("input[data-role='drawing']");
+                const totalDiv = row.querySelector("div[data-role='total']");
+                
+                if (unitInput && qtyInput && totalDiv) {
+                    weights.basic[key] = {
+                        name: name,
+                        drawing: drawingInput ? drawingInput.value : "",
+                        unit: parseNumber(unitInput.value),
+                        qty: parseNumber(qtyInput.value),
+                        total: parseNumber(totalDiv.textContent)
                     };
                 }
             });
             
-            // Collect Special
-            SPECIAL_CONFIG.forEach(item => {
-                const row = document.querySelector(`.table-row[data-section='special'][data-key='${item.key}']`);
-                if (row) {
-                    let spec = "";
-                    if (item.key === "floor") {
-                        const sel = row.querySelector("select[data-role='floor-material']");
-                        spec = sel ? sel.options[sel.selectedIndex].text : "";
-                    } else {
-                        spec = row.querySelector("input[data-role='drawing']").value;
-                    }
-                    const unit = parseNumber(row.querySelector("input[data-role='unit']").value);
-                    const qty = parseNumber(row.querySelector("input[data-role='quantity']").value);
-                    const total = parseNumber(row.querySelector("div[data-role='total']").textContent);
-                    weights.special[item.key] = {
-                        name: item.name,
+            // Collect Special - iterate through DOM elements directly
+            const specialRows = document.querySelectorAll(".table-row[data-section='special']");
+            specialRows.forEach(row => {
+                const key = row.dataset.key;
+                const nameLabel = row.querySelector(".cell-label");
+                const name = nameLabel ? nameLabel.childNodes[0].textContent.trim() : key;
+                
+                let spec = "";
+                if (key === "floor") {
+                    const sel = row.querySelector("select[data-role='floor-material']");
+                    spec = sel ? (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : "") : "";
+                } else {
+                    const drawingInput = row.querySelector("input[data-role='drawing']");
+                    spec = drawingInput ? drawingInput.value : "";
+                }
+                
+                const unitInput = row.querySelector("input[data-role='unit']");
+                const qtyInput = row.querySelector("input[data-role='quantity']");
+                const totalDiv = row.querySelector("div[data-role='total']");
+                
+                if (unitInput && qtyInput && totalDiv) {
+                    weights.special[key] = {
+                        name: name,
                         spec: spec,
-                        unit: unit,
-                        qty: qty,
-                        total: total
+                        unit: parseNumber(unitInput.value),
+                        qty: parseNumber(qtyInput.value),
+                        total: parseNumber(totalDiv.textContent)
                     };
                 }
             });
