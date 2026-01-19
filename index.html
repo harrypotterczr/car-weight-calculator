@@ -2570,11 +2570,33 @@
                 let weight = 0;
                 
                 if (fullComponent.model_type === 'random_forest') {
-                    // Random Forest not supported in static version
-                    showToast("在线版本不支持随机森林模型 (Random Forest)，仅支持公式计算。", true);
-                    spinner.style.display = "none";
-                    applyBtn.disabled = false;
-                    return;
+                    // Try to call backend API if available (Local Environment)
+                    try {
+                        const res = await fetch("/api/calculate", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                component_drawing_no: component.component_drawing_no,
+                                parameters: params
+                            })
+                        });
+                        
+                        if (res.ok) {
+                            const result = await res.json();
+                            weight = result.weight;
+                        } else {
+                            // If API fails (e.g. 404 on GitHub Pages), throw error to be caught below
+                            throw new Error("Backend unavailable");
+                        }
+                    } catch (e) {
+                        // Fallback message for static environment
+                        showToast("在线版本(GitHub Pages)不支持随机森林模型，请在本地环境运行后端服务。", true);
+                        spinner.style.display = "none";
+                        applyBtn.disabled = false;
+                        return;
+                    }
                 } else {
                     // Calculate locally
                     weight = calculateUsingFormula(fullComponent.formula, params);
@@ -2783,8 +2805,107 @@
             });
 
             // Archive Data
-            // Archive Data
-        // Helper to collect all weights
+            // Note: collectAllWeights and downloadJSON are defined outside setupCoreEvents now
+            document.getElementById("archive-btn").addEventListener("click", async function() {
+                const requiredFields = document.querySelectorAll(".required-field");
+                let missing = [];
+                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        const label = field.parentElement.querySelector(".field-label").textContent.replace("*", "").trim();
+                        missing.push(label);
+                        field.style.borderColor = "#ef4444";
+                    } else {
+                        field.style.borderColor = "";
+                    }
+                });
+
+                if (missing.length > 0) {
+                    showToast("请填写必填项: " + missing.join(", "), true);
+                    return;
+                }
+
+                // 2. Validate Weight Rule
+                const capacity = parseNumber(document.getElementById("capacity").value);
+                const totalWeight = parseNumber(document.getElementById("total-car-weight").textContent);
+                
+                if (totalWeight <= capacity * 0.6) {
+                    showToast(`校验失败: 轿厢总重量 (${totalWeight}) 必须大于 载重*0.6 (${(capacity * 0.6).toFixed(2)})`, true);
+                    return;
+                }
+
+                // 3. Collect Data
+                const weightDetails = collectAllWeights();
+                
+                const data = {
+                    projectParams: {
+                        machineRoomType: document.getElementById("machine-room-type").value,
+                        projectNo: document.getElementById("project-no").value,
+                        elevatorModel: document.getElementById("elevator-model").value,
+                        capacity: capacity,
+                        speed: parseNumber(document.getElementById("speed").value),
+                        CA: parseNumber(document.getElementById("param-CA").value),
+                        CB: parseNumber(document.getElementById("param-CB").value),
+                        CH: parseNumber(document.getElementById("param-CH").value),
+                        HH: parseNumber(document.getElementById("param-HH").value),
+                        JJ: parseNumber(document.getElementById("param-JJ").value),
+                        openingType: document.getElementById("opening-type").value,
+                        doorOperatorMfr: document.getElementById("door-operator-mfr").value,
+                        throughCar: document.getElementById("through-car").value
+                    },
+                    wallParams: {
+                        carType: document.getElementById("car-type").value,
+                        carWallThickness: parseNumber(document.getElementById("car-wall-thickness").value),
+                        floorThickness: parseNumber(document.getElementById("floor-thickness").value),
+                        SW: parseNumber(document.getElementById("param-SW").value),
+                        EA: parseNumber(document.getElementById("param-EA").value)
+                    },
+                    weights: weightDetails, // Added detailed weights
+                    totalWeight: totalWeight,
+                    compensationFactor: parseNumber(document.getElementById("compensation-factor").value),
+                    timestamp: new Date().toISOString()
+                };
+
+                // 4. Download JSON (Client-side Archive)
+                try {
+                    const btn = document.getElementById("archive-btn");
+                    const originalText = btn.textContent;
+                    btn.textContent = "下载中...";
+                    btn.disabled = true;
+
+                    const projectNo = data.projectParams.projectNo || "archive";
+                    downloadJSON(data, `轿厢重量_${projectNo}_${new Date().toISOString().slice(0,10)}.json`);
+
+                    showToast("归档数据已生成下载", false);
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                } catch (e) {
+                    showToast("下载失败: " + e.message, true);
+                    document.getElementById("archive-btn").disabled = false;
+                    document.getElementById("archive-btn").textContent = "轿厢重量归档";
+                }
+            });
+                    const btn = document.getElementById("archive-btn");
+                    const originalText = btn.textContent;
+                    btn.textContent = "下载中...";
+                    btn.disabled = true;
+
+                    const projectNo = data.projectParams.projectNo || "archive";
+                    downloadJSON(data, `轿厢重量_${projectNo}_${new Date().toISOString().slice(0,10)}.json`);
+
+                    showToast("归档数据已生成下载", false);
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                } catch (e) {
+                    showToast("下载失败: " + e.message, true);
+                    document.getElementById("archive-btn").disabled = false;
+                    document.getElementById("archive-btn").textContent = "轿厢重量归档";
+                }
+            });
+        }
+
+        // Move helper functions outside of setupCoreEvents to global scope
         function collectAllWeights() {
             const weights = {
                 basic: {},
@@ -2837,7 +2958,6 @@
             return weights;
         }
 
-        // Download JSON function
         function downloadJSON(data, filename) {
             const blob = new Uint8Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
@@ -2850,31 +2970,9 @@
             URL.revokeObjectURL(url);
         }
         
-        // Helper for Blob support in older browsers (polyfilled logic essentially)
-        // Note: Modern browsers support Blob constructor.
         function Uint8Blob(parts, opts) {
              return new Blob(parts, opts);
         }
-
-        document.getElementById("archive-btn").addEventListener("click", async function() {
-                const requiredFields = document.querySelectorAll(".required-field");
-                let missing = [];
-                requiredFields.forEach(field => {
-                    if (!field.value) {
-                        const label = field.parentElement.querySelector(".field-label").textContent.replace("*", "").trim();
-                        missing.push(label);
-                        field.style.borderColor = "#ef4444";
-                    } else {
-                        field.style.borderColor = "";
-                    }
-                });
-
-                if (missing.length > 0) {
-                    showToast("请填写必填项: " + missing.join(", "), true);
-                    return;
-                }
-
-                // 2. Validate Weight Rule
                 const capacity = parseNumber(document.getElementById("capacity").value);
                 const totalWeight = parseNumber(document.getElementById("total-car-weight").textContent);
                 
