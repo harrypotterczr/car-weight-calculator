@@ -2307,7 +2307,8 @@
             document.getElementById("basic-sum").textContent = basicSum.toFixed(2);
             document.getElementById("special-sum").textContent = specialSum.toFixed(2);
 
-            const carWeight = basicSum * (1 + factor) + specialSum;
+            // Round up to nearest 10
+            const carWeight = Math.ceil((basicSum * (1 + factor) + specialSum) / 10) * 10;
             document.getElementById("total-car-weight").textContent = carWeight.toFixed(2);
 
             document.getElementById("summary-machine-room").textContent = currentMachineRoom;
@@ -2340,12 +2341,48 @@
             }
 
             try {
-                const res = await fetch(`/api/component/${encodeURIComponent(drawingNoRaw)}`);
-                if (!res.ok) {
+                // Find local component data instead of API call
+                // Logic adapted from server.js fuzzy matching
+                const processedDrawingNo = drawingNoRaw.replace(/ /g, '\n');
+                
+                let component = null;
+                
+                // 1. Exact match processed
+                component = formulasData.find(c => c.component_drawing_no === processedDrawingNo);
+                
+                // 2. Exact match raw
+                if (!component) {
+                    component = formulasData.find(c => c.component_drawing_no === drawingNoRaw);
+                }
+                
+                // 3. Fuzzy match (replace newlines with spaces)
+                if (!component) {
+                    component = formulasData.find(c => 
+                        c.component_drawing_no.replace(/\n/g, ' ') === drawingNoRaw
+                    );
+                }
+                
+                // 4. Fuzzy match (remove all spaces)
+                if (!component) {
+                    const normalizedInput = drawingNoRaw.replace(/\s/g, '');
+                    component = formulasData.find(c => 
+                        c.component_drawing_no.replace(/\s/g, '') === normalizedInput
+                    );
+                }
+                
+                // 5. Partial match (first 8 chars)
+                if (!component) {
+                    const mainPart = drawingNoRaw.replace(/\s/g, '').substring(0, 8);
+                    component = formulasData.find(c => 
+                        c.component_drawing_no.replace(/\s/g, '').includes(mainPart)
+                    );
+                }
+
+                if (!component) {
                     showToast("未找到该部件的模型/公式", true);
                     return;
                 }
-                const component = await res.json();
+                
                 modalState = {
                     rowKey: row.dataset.key,
                     section: row.dataset.section,
@@ -2353,7 +2390,8 @@
                 };
                 renderModal(component, drawingNoRaw);
             } catch (err) {
-                showToast("请求部件信息失败", true);
+                console.error(err);
+                showToast("查找部件信息失败", true);
             }
         }
 
@@ -2409,15 +2447,92 @@
             backdrop.style.display = "flex";
         }
 
+        // Global variable to store component formulas
+        let formulasData = [];
+
+        async function loadComponentsIndex() {
+            try {
+                // Fetch directly from the static JSON file
+                const res = await fetch("formulas_optimized.json");
+                if (!res.ok) {
+                    console.error("Failed to load formulas_optimized.json");
+                    return;
+                }
+                formulasData = await res.json();
+                // Map to the format expected by suggestions
+                componentsIndex = formulasData.map(c => ({
+                    component_drawing_no: c.component_drawing_no,
+                    model_type: c.model_type,
+                    r2_score: c.r2_score
+                }));
+            } catch (e) {
+                console.error("Error loading components:", e);
+            }
+        }
+
+        // Client-side formula calculation function (ported from server.js)
+        function calculateUsingFormula(formula, parameters) {
+            try {
+                // Remove "unit_weight = " prefix
+                let expression = formula.replace('unit_weight = ', '');
+                
+                // Handle power operations (supports Chinese/English params)
+                expression = expression.replace(/([a-zA-Z\u4e00-\u9fa5]+)\^(\d+)/g, 'Math.pow($1, $2)');
+                
+                // Handle multiplication between params (e.g. CA CH -> CA*CH)
+                expression = expression.replace(/([a-zA-Z\u4e00-\u9fa5]+)\s+([a-zA-Z\u4e00-\u9fa5]+)/g, '$1*$2');
+                
+                // Replace parameter values - sort by length descending to avoid partial matches
+                const sortedParams = Object.entries(parameters).sort((a, b) => 
+                    b[0].length - a[0].length
+                );
+                
+                for (const [param, value] of sortedParams) {
+                    if (/[\u4e00-\u9fa5]/.test(param)) {
+                        const regex = new RegExp(param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                        expression = expression.replace(regex, value.toString());
+                    } else {
+                        const escapedParam = param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const regex = new RegExp('\\b' + escapedParam + '\\b', 'g');
+                        expression = expression.replace(regex, value.toString());
+                    }
+                }
+                
+                // Handle remaining spaces
+                expression = expression.replace(/\s+/g, '');
+                
+                // Calculate
+                // Note: eval is used here as we trust the source formulas. 
+                // In a stricter environment we might use a parser.
+                const result = eval(expression);
+                return result;
+            } catch (error) {
+                throw new Error('Formula calculation error: ' + error.message);
+            }
+        }
+
         async function applyModelResult() {
             const backdrop = document.getElementById("modal-backdrop");
             const error = document.getElementById("modal-error");
             const body = document.getElementById("modal-body");
             const spinner = document.getElementById("modal-spinner");
             const applyBtn = document.getElementById("modal-apply");
-            const component = modalState.component;
+            const component = modalState.component; // This is the component from suggestions (summary)
+            
             if (!component) {
                 backdrop.style.display = "none";
+                return;
+            }
+
+            // Find full component data
+            // Handle special char encoding (spaces to newlines) if necessary, 
+            // but here we are matching against loaded JSON directly.
+            // The logic in server.js handled fuzzy matching. 
+            // Here we assume exact match on drawing no since we picked it from the list.
+            const fullComponent = formulasData.find(c => c.component_drawing_no === component.component_drawing_no);
+            
+            if (!fullComponent) {
+                showToast("未找到组件详细数据", true);
                 return;
             }
 
@@ -2440,49 +2555,37 @@
             try {
                 spinner.style.display = "flex";
                 applyBtn.disabled = true;
-                const res = await fetch("/api/calculate", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        component_drawing_no: component.component_drawing_no,
-                        parameters: params
-                    })
-                });
-                if (!res.ok) {
-                    const text = await res.text();
-                    showToast("调用模型计算失败: " + text, true);
+                
+                let weight = 0;
+                
+                if (fullComponent.model_type === 'random_forest') {
+                    // Random Forest not supported in static version
+                    showToast("在线版本不支持随机森林模型 (Random Forest)，仅支持公式计算。", true);
+                    spinner.style.display = "none";
+                    applyBtn.disabled = false;
                     return;
+                } else {
+                    // Calculate locally
+                    weight = calculateUsingFormula(fullComponent.formula, params);
                 }
-                const result = await res.json();
+
                 const selector = `.table-row[data-section='${modalState.section}'][data-key='${modalState.rowKey}']`;
                 const row = document.querySelector(selector);
                 if (!row) {
                     showToast("行已不存在", true);
                 } else {
                     const unitInput = row.querySelector("input[data-role='unit']");
-                    unitInput.value = result.weight.toFixed(2);
+                    unitInput.value = weight.toFixed(2);
                     recalculateAll();
                 }
                 backdrop.style.display = "none";
-                showToast("已填入模型计算结果", false);
+                showToast("已填入计算结果", false);
             } catch (err) {
-                showToast("模型计算异常", true);
+                console.error(err);
+                showToast("计算异常: " + err.message, true);
             } finally {
                 spinner.style.display = "none";
                 applyBtn.disabled = false;
-            }
-        }
-
-        async function loadComponentsIndex() {
-            try {
-                const res = await fetch("/api/components");
-                if (!res.ok) {
-                    return;
-                }
-                componentsIndex = await res.json();
-            } catch (e) {
             }
         }
 
@@ -2670,7 +2773,79 @@
 
             // Archive Data
             // Archive Data
-            document.getElementById("archive-btn").addEventListener("click", async function() {
+        // Helper to collect all weights
+        function collectAllWeights() {
+            const weights = {
+                basic: {},
+                special: {},
+                summary: []
+            };
+            
+            // Collect Basic
+            BASIC_CONFIG.forEach(item => {
+                const row = document.querySelector(`.table-row[data-section='basic'][data-key='${item.key}']`);
+                if (row) {
+                    const unit = parseNumber(row.querySelector("input[data-role='unit']").value);
+                    const qty = parseNumber(row.querySelector("input[data-role='quantity']").value);
+                    const drawing = row.querySelector("input[data-role='drawing']").value;
+                    const total = parseNumber(row.querySelector("div[data-role='total']").textContent);
+                    weights.basic[item.key] = {
+                        name: item.name,
+                        drawing: drawing,
+                        unit: unit,
+                        qty: qty,
+                        total: total
+                    };
+                }
+            });
+            
+            // Collect Special
+            SPECIAL_CONFIG.forEach(item => {
+                const row = document.querySelector(`.table-row[data-section='special'][data-key='${item.key}']`);
+                if (row) {
+                    let spec = "";
+                    if (item.key === "floor") {
+                        const sel = row.querySelector("select[data-role='floor-material']");
+                        spec = sel ? sel.options[sel.selectedIndex].text : "";
+                    } else {
+                        spec = row.querySelector("input[data-role='drawing']").value;
+                    }
+                    const unit = parseNumber(row.querySelector("input[data-role='unit']").value);
+                    const qty = parseNumber(row.querySelector("input[data-role='quantity']").value);
+                    const total = parseNumber(row.querySelector("div[data-role='total']").textContent);
+                    weights.special[item.key] = {
+                        name: item.name,
+                        spec: spec,
+                        unit: unit,
+                        qty: qty,
+                        total: total
+                    };
+                }
+            });
+            
+            return weights;
+        }
+
+        // Download JSON function
+        function downloadJSON(data, filename) {
+            const blob = new Uint8Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Helper for Blob support in older browsers (polyfilled logic essentially)
+        // Note: Modern browsers support Blob constructor.
+        function Uint8Blob(parts, opts) {
+             return new Blob(parts, opts);
+        }
+
+        document.getElementById("archive-btn").addEventListener("click", async function() {
                 const requiredFields = document.querySelectorAll(".required-field");
                 let missing = [];
                 requiredFields.forEach(field => {
@@ -2698,6 +2873,8 @@
                 }
 
                 // 3. Collect Data
+                const weightDetails = collectAllWeights();
+                
                 const data = {
                     projectParams: {
                         machineRoomType: document.getElementById("machine-room-type").value,
@@ -2721,34 +2898,28 @@
                         SW: parseNumber(document.getElementById("param-SW").value),
                         EA: parseNumber(document.getElementById("param-EA").value)
                     },
+                    weights: weightDetails, // Added detailed weights
                     totalWeight: totalWeight,
                     compensationFactor: parseNumber(document.getElementById("compensation-factor").value),
                     timestamp: new Date().toISOString()
                 };
 
-                // 4. Send to Server
+                // 4. Download JSON (Client-side Archive)
                 try {
                     const btn = document.getElementById("archive-btn");
                     const originalText = btn.textContent;
-                    btn.textContent = "归档中...";
+                    btn.textContent = "下载中...";
                     btn.disabled = true;
 
-                    const res = await fetch("/api/archive", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
-                    });
+                    const projectNo = data.projectParams.projectNo || "archive";
+                    downloadJSON(data, `轿厢重量_${projectNo}_${new Date().toISOString().slice(0,10)}.json`);
 
-                    if (res.ok) {
-                        showToast("归档成功！", false);
-                    } else {
-                        showToast("归档失败", true);
-                    }
+                    showToast("归档数据已下载", false);
 
                     btn.textContent = originalText;
                     btn.disabled = false;
                 } catch (e) {
-                    showToast("请求失败: " + e.message, true);
+                    showToast("下载失败: " + e.message, true);
                     document.getElementById("archive-btn").disabled = false;
                     document.getElementById("archive-btn").textContent = "轿厢重量归档";
                 }
