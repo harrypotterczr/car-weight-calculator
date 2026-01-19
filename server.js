@@ -19,9 +19,7 @@ app.get('/car_weight_calculator', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/component_weight_calculator', (req, res) => {
-    res.sendFile(path.join(__dirname, 'component_weight_calculator.html'));
-});
+
 // 读取组件数据
 const componentsData = JSON.parse(fs.readFileSync('formulas_optimized.json', 'utf8'));
 
