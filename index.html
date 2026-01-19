@@ -792,10 +792,21 @@
                 height: auto;
                 width: 100%;
             }
-            /* 修正输入框文字颜色 */
-            input, select {
-                color: black !important;
-                opacity: 1 !important;
+            /* Hide placeholder texts when printing */
+            input::placeholder {
+                color: transparent !important;
+            }
+            
+            /* Fix blurred font in printing */
+            body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .field-input, .field-select, .small-input, .small-select, input, select {
+                text-shadow: none !important;
+                font-family: "Microsoft YaHei", sans-serif !important; /* Ensure a clean font */
+                font-weight: 500 !important; /* Increase weight slightly */
+                -webkit-font-smoothing: antialiased !important;
             }
             /* 隐藏下拉箭头 */
             select {
