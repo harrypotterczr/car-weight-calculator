@@ -1,0 +1,2797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轿厢重量计算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+        :root {
+            color-scheme: dark;
+        }
+        body {
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            background:
+                radial-gradient(circle at 0% 0%, rgba(45,212,191,0.18), transparent 55%),
+                radial-gradient(circle at 100% 0%, rgba(129,140,248,0.22), transparent 55%),
+                radial-gradient(circle at 0% 100%, rgba(52,211,153,0.14), transparent 55%),
+                #020617;
+            color: #e5e7eb;
+            display: flex;
+            justify-content: center;
+            padding: 24px;
+        }
+        .page {
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.18;
+            background-image: linear-gradient(to right, rgba(15,23,42,0.65) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(15,23,42,0.65) 1px, transparent 1px);
+            background-size: 32px 32px;
+            z-index: -1;
+        }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.16), rgba(129,140,248,0.26));
+            border: 1px solid rgba(148,163,184,0.5);
+            box-shadow: 0 0 0 1px rgba(15,23,42,0.6), 0 18px 45px rgba(15,23,42,0.9);
+        }
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #a5b4fc, #4ade80);
+            box-shadow: 0 0 18px rgba(129,140,248,0.85);
+        }
+        .brand-text-main {
+            font-size: 14px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #c7d2fe;
+        }
+        .brand-text-sub {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ghost-button,
+        .ghost-link {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.55);
+            background: radial-gradient(circle at 0 0, rgba(248,250,252,0.06), transparent 60%);
+            color: #e5e7eb;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 150ms ease, border-color 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+        }
+        .ghost-button:hover,
+        .ghost-link:hover {
+            border-color: rgba(248,250,252,0.95);
+            background: radial-gradient(circle at 0 0, rgba(248,250,252,0.12), transparent 65%);
+            box-shadow: 0 0 0 1px rgba(15,23,42,0.6), 0 14px 40px rgba(15,23,42,0.9);
+            transform: translateY(-1px);
+        }
+        .ghost-button:active,
+        .ghost-link:active {
+            transform: translateY(0);
+            box-shadow: 0 0 0 1px rgba(15,23,42,0.7), 0 10px 28px rgba(15,23,42,0.9);
+        }
+        .ghost-button-primary {
+            border-color: rgba(74,222,128,0.9);
+            background: radial-gradient(circle at 0 0, rgba(74,222,128,0.22), transparent 70%);
+            box-shadow: 0 0 0 1px rgba(21,94,67,0.9), 0 18px 45px rgba(6,95,70,0.75);
+        }
+        .ghost-button-primary:hover {
+            border-color: rgba(190,242,100,1);
+            background: radial-gradient(circle at 0 0, rgba(74,222,128,0.32), transparent 75%);
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr);
+            gap: 18px;
+        }
+        @media (max-width: 960px) {
+            body {
+                padding: 16px;
+            }
+            .layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+        .card {
+            position: relative;
+            border-radius: 18px;
+            padding: 18px 18px 20px;
+            background: radial-gradient(circle at 0 0, rgba(248,250,252,0.04), transparent 70%),
+                        linear-gradient(135deg, rgba(15,23,42,0.88), rgba(15,23,42,0.72));
+            border: 1px solid rgba(148,163,184,0.65);
+            box-shadow:
+                0 0 0 1px rgba(15,23,42,0.95),
+                0 20px 55px rgba(15,23,42,0.95),
+                0 0 40px rgba(59,130,246,0.35);
+            backdrop-filter: blur(22px) saturate(140%);
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at 10% 0, rgba(248,250,252,0.06), transparent 55%);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .card-inner {
+            position: relative;
+            z-index: 1;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 16px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #9ca3af;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            color: #a7f3d0;
+            background: linear-gradient(130deg, rgba(45,212,191,0.16), rgba(16,185,129,0.32));
+            border: 1px solid rgba(52,211,153,0.8);
+        }
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #bbf7d0, #22c55e);
+        }
+        .grid-two {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 14px;
+        }
+        .grid-three {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 12px;
+        }
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .field-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+        }
+        .field-label span {
+            color: #f97316;
+            margin-left: 3px;
+        }
+        .field-input,
+        .field-select {
+            width: 100%;
+            padding: 7px 9px;
+            border-radius: 9px;
+            border: 1px solid rgba(75,85,99,0.9);
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.65), rgba(15,23,42,0.96));
+            color: #e5e7eb;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+        }
+        .field-input::placeholder {
+            color: #6b7280;
+        }
+        .field-input:focus,
+        .field-select:focus {
+            border-color: rgba(129,140,248,0.95);
+            box-shadow: 0 0 0 1px rgba(76,106,255,0.9), 0 0 0 6px rgba(37,99,235,0.35);
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.55), rgba(15,23,42,0.96));
+        }
+        .field-select option {
+            background-color: #0f172a;
+            color: #e5e7eb;
+        }
+        .field-input[readonly] {
+            opacity: 0.85;
+            cursor: default;
+        }
+        .field-note {
+            margin-top: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .summary-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.9), rgba(2,6,23,0.9));
+            border: 1px solid rgba(31,41,55,0.95);
+            box-shadow: 0 0 0 1px rgba(15,23,42,1), 0 18px 45px rgba(15,23,42,0.95);
+            margin-bottom: 14px;
+            gap: 12px;
+        }
+        .summary-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .summary-title {
+            font-size: 18px;
+            color: #9ca3af;
+        }
+        .summary-sub {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .summary-weight {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        .summary-weight-label {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+        .summary-weight-value {
+            font-size: 26px;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            background: linear-gradient(120deg, #a7f3d0, #e5e7eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 28px rgba(34,197,94,0.35);
+        }
+        .summary-weight-unit {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .summary-pill-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .summary-pill {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(55,65,81,0.95);
+            font-size: 10px;
+            color: #9ca3af;
+        }
+        .summary-pill span {
+            color: #e5e7eb;
+            margin-left: 4px;
+        }
+        .section-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+        .section-title {
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #9ca3af;
+        }
+        .section-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(55,65,81,0.9);
+            color: #6b7280;
+        }
+        .table-shell {
+            margin-top: 6px;
+            border-radius: 14px;
+            border: 1px solid rgba(55,65,81,0.95);
+            background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.9));
+            overflow: hidden;
+        }
+        .table-head {
+            display: grid;
+            grid-template-columns: 1.0fr 1.4fr 0.9fr 0.6fr 0.9fr 0.6fr;
+            padding: 8px 10px;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6b7280;
+            border-bottom: 1px solid rgba(31,41,55,0.95);
+            background: radial-gradient(circle at 0 0, rgba(30,64,175,0.45), transparent 70%);
+        }
+        .table-body {
+            max-height: 330px;
+            overflow-y: scroll;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 1.0fr 1.4fr 0.9fr 0.6fr 0.9fr 0.6fr;
+            padding: 6px 10px;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(31,41,55,0.82);
+        }
+        .table-row:last-child {
+            border-bottom: none;
+        }
+        .table-row:nth-child(2n) {
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.9), rgba(15,23,42,0.98));
+        }
+        .cell-label {
+            font-size: 13px;
+            color: #e5e7eb;
+        }
+        .cell-sub {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .cell-mono {
+            font-variant-numeric: tabular-nums;
+            font-size: 13px;
+            color: #e5e7eb;
+        }
+        .cell-total-highlight {
+            color: #bbf7d0;
+        }
+        .cell-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pill-button {
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(79,70,229,0.9);
+            background: radial-gradient(circle at 0 0, rgba(79,70,229,0.35), transparent 70%);
+            color: #e5e7eb;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+        }
+        .pill-button:hover {
+            border-color: rgba(196,181,253,1);
+            background: radial-gradient(circle at 0 0, rgba(129,140,248,0.6), transparent 72%);
+            box-shadow: 0 0 0 1px rgba(15,23,42,0.9), 0 15px 35px rgba(30,64,175,0.9);
+            transform: translateY(-0.5px);
+        }
+        .pill-button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 0 1px rgba(15,23,42,1), 0 12px 26px rgba(30,64,175,0.95);
+        }
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(55,65,81,0.9);
+            font-size: 10px;
+            color: #6b7280;
+        }
+        .tag-pill span {
+            color: #e5e7eb;
+        }
+        .inline-field-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .small-select {
+            width: 100%;
+        }
+        .small-input {
+            width: 100%;
+        }
+        .small-input-narrow {
+            width: 100%;
+        }
+        .small-input-qty {
+            width: 100%;
+        }
+        .summary-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .summary-footer span {
+            color: #e5e7eb;
+        }
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            min-width: 240px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.9), rgba(6,78,59,0.98));
+            border: 1px solid rgba(52,211,153,0.8);
+            color: #a7f3d0;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            z-index: 80;
+        }
+        .toast-badge {
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #bbf7d0, #22c55e);
+        }
+        .toast-error {
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.9), rgba(127,29,29,0.98));
+            border-color: rgba(239,68,68,0.9);
+            color: #fecaca;
+        }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,0.6), rgba(15,23,42,0.96));
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 60;
+        }
+        .modal {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 18px;
+            padding: 16px 18px 18px;
+            background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(15,23,42,0.88));
+            border: 1px solid rgba(129,140,248,0.7);
+            box-shadow: 0 22px 60px rgba(15,23,42,0.98);
+            backdrop-filter: blur(22px) saturate(140%);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .modal-title {
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #9ca3af;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .modal-body {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .param-row {
+            display: grid;
+            grid-template-columns: 0.9fr 0.7fr 1fr;
+            gap: 8px;
+            align-items: center;
+            padding: 4px 0;
+        }
+        .param-name {
+            font-size: 12px;
+            color: #e5e7eb;
+        }
+        .param-tag {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        .modal-footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .primary-btn {
+            padding: 7px 14px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            color: #022c22;
+            background: linear-gradient(135deg, #4ade80, #a3e635);
+            box-shadow: 0 14px 35px rgba(21,128,61,0.8);
+            transition: transform 120ms ease, box-shadow 120ms ease;
+        }
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 45px rgba(21,128,61,0.98);
+        }
+        .primary-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 12px 30px rgba(21,128,61,0.96);
+        }
+        .secondary-btn {
+            padding: 7px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(75,85,99,0.9);
+            background: transparent;
+            color: #9ca3af;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .error-text {
+            font-size: 11px;
+            color: #fecaca;
+            margin-top: 4px;
+        }
+        .print-only {
+            display: none;
+        }
+        .modal-spinner {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #9ca3af;
+            margin-right: auto;
+        }
+        .spinner-circle {
+            border: 2px solid rgba(55,65,81,0.85);
+            border-top-color: #a3e635;
+            border-radius: 999px;
+            width: 14px;
+            height: 14px;
+            animation: spin 0.9s linear infinite;
+        }
+        .suggestions {
+            position: fixed;
+            z-index: 70;
+            background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.94));
+            border-radius: 10px;
+            border: 1px solid rgba(55,65,81,0.95);
+            box-shadow: 0 18px 45px rgba(15,23,42,0.95);
+            max-height: 260px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .suggestion-item {
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #e5e7eb;
+        }
+        .suggestion-item:hover {
+            background: radial-gradient(circle at 0 0, rgba(59,130,246,0.45), transparent 70%);
+        }
+        .print-title {
+            font-size: 20px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #e5e7eb;
+            margin-bottom: 12px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .print-footer {
+            display: none;
+        }
+        .table-footer-add {
+            display: flex;
+            justify-content: center;
+            padding: 6px;
+            border-top: 1px solid rgba(31,41,55,0.82);
+            background: rgba(15,23,42,0.3);
+        }
+        .add-row-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(148,163,184,0.5);
+            background: rgba(255,255,255,0.05);
+            color: #9ca3af;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .add-row-btn:hover {
+            border-color: #a7f3d0;
+            color: #a7f3d0;
+            background: rgba(16,185,129,0.1);
+        }
+        .delete-btn {
+            color: #ef4444;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            font-size: 18px;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .delete-btn:hover {
+            opacity: 1;
+        }
+        @media print {
+            .table-footer-add, .delete-btn {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0;
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .bg-grid,
+            .top-bar,
+            .toast,
+            .modal-backdrop,
+            .cell-actions,
+            .badge,
+            .section-tag,
+            .tag-pill {
+                display: none !important;
+            }
+
+            /* 打印时保留总质量模块但移除圆角样式 */
+            .summary-strip {
+                display: flex !important;
+                background: none !important;
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                padding: 10px 0 !important;
+                margin-bottom: 15px !important;
+            }
+            .summary-title, 
+            .summary-sub, 
+            .summary-weight-label, 
+            .summary-weight-unit {
+                color: black !important;
+            }
+            .summary-pill {
+                color: black !important;
+                border: 1px solid #666 !important;
+            }
+            .summary-pill span {
+                color: black !important;
+            }
+            .summary-weight-value {
+                background: none !important;
+                -webkit-background-clip: border-box !important;
+                background-clip: border-box !important;
+                color: black !important;
+                text-shadow: none !important;
+            }
+            .page {
+                max-width: none;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+            }
+            .layout {
+                display: block;
+            }
+            .card {
+                box-shadow: none !important;
+                background: none !important;
+                border: none !important;
+                padding: 0;
+                margin: 0;
+            }
+            .card::before {
+                display: none !important;
+            }
+            .card-inner {
+                padding: 0;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-title {
+                color: black !important;
+                font-size: 24px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 30px;
+                text-transform: none;
+            }
+            .card-header {
+                display: none;
+            }
+            .table-shell {
+                border: 1px solid #000 !important;
+                border-radius: 0;
+                background: none !important;
+                margin-top: 10px;
+            }
+            .table-head {
+                background: #f3f4f6 !important;
+                color: black !important;
+                border-bottom: 1px solid #000 !important;
+            }
+            .table-body {
+                max-height: none !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            .table-row {
+                background: none !important;
+                border-bottom: 1px solid #ccc !important;
+                color: black !important;
+            }
+            .cell-label, .cell-sub, .cell-mono, .section-title, .field-label {
+                color: black !important;
+                text-shadow: none !important;
+            }
+            .field-input, .field-select, .small-input, .small-select {
+                background: none !important;
+                border: none !important;
+                box-shadow: none !important;
+                color: black !important;
+                padding: 0;
+                height: auto;
+                width: 100%;
+            }
+            /* 修正输入框文字颜色 */
+            input, select {
+                color: black !important;
+                opacity: 1 !important;
+            }
+            /* 隐藏下拉箭头 */
+            select {
+                appearance: none;
+                -webkit-appearance: none;
+                background-image: none !important;
+            }
+            /* 概要栏隐藏背景 */
+            .summary-bar {
+                background: none !important;
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                color: black !important;
+            }
+            .summary-title, .summary-sub, .summary-weight-label, .summary-weight-unit {
+                color: black !important;
+            }
+            .summary-weight-value {
+                background: none !important;
+                -webkit-text-fill-color: black !important;
+                color: black !important;
+                text-shadow: none !important;
+            }
+            /* Fix summary footer numbers */
+            .summary-footer {
+                color: black !important;
+            }
+            .summary-footer span {
+                color: black !important;
+                font-weight: bold;
+            }
+            .summary-pill {
+                border: 1px solid #000 !important;
+                color: black !important;
+            }
+            .summary-pill span {
+                color: black !important;
+            }
+            /* 分页控制 */
+            .card-project {
+                page-break-after: always;
+                min-height: 90vh;
+                display: flex !important;
+                flex-direction: column;
+            }
+            .card-detail {
+                page-break-before: always;
+                min-height: 90vh;
+                display: flex !important;
+                flex-direction: column;
+            }
+            .card-inner {
+                flex: 1;
+                display: flex !important;
+                flex-direction: column;
+            }
+            /* 打印页脚 */
+            .print-footer {
+                display: flex !important;
+                margin-top: auto !important;
+                padding-top: 10px;
+                border-top: 1px solid #000;
+                position: relative;
+                justify-content: center;
+                font-size: 10px;
+                color: black;
+            }
+            .footer-right {
+                position: absolute;
+                right: 0;
+                top: 10px; /* Align with padding-top */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="page">
+        <header class="top-bar">
+            <div class="brand">
+                <div class="brand-pill">
+                    <div class="brand-dot"></div>
+                    <div>
+                        <div class="brand-text-main">轿厢重量计算器</div>
+                        <div class="brand-text-sub">Car Weight Calculator</div>
+                    </div>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button id="export-pdf" class="ghost-button ghost-button-primary">导出 PDF</button>
+                <button id="archive-btn" class="ghost-button">轿厢重量归档</button>
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="card card-project">
+                <div class="card-inner">
+                    <h1 class="print-title print-only">轿厢重量计算 - 项目参数</h1>
+                    <div class="card-header">
+                        <div class="card-title">项目参数</div>
+                        <div class="badge"><span class="badge-dot"></span><span>实时联动计算</span></div>
+                    </div>
+                    <div class="grid-two" style="margin-bottom: 12px;">
+                        <div class="field-group">
+                            <label class="field-label">机房类型<span>*</span></label>
+                            <select id="machine-room-type" class="field-select">
+                                <option value="有机房">有机房</option>
+                                <option value="无机房">无机房</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">补偿系数</label>
+                            <div class="inline-field-group">
+                                <input id="compensation-factor" class="field-input small-input" type="number" step="0.0001" value="0.06">
+                                <div class="tag-pill">当前系数<span id="factor-display">6%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-two" style="margin-bottom: 12px;">
+                        <div class="field-group">
+                            <label class="field-label">项目号</label>
+                            <input id="project-no" class="field-input" placeholder="例如: KE2024-001">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">电梯型号</label>
+                            <input id="elevator-model" class="field-input" placeholder="例如: HMRO1600">
+                        </div>
+                    </div>
+                    <div class="section-title-row">
+                        <div class="section-title">主参数</div>
+                        <div class="section-tag">CA / CB / CH / HH / JJ 由此统一提供</div>
+                    </div>
+                    <div class="grid-three">
+                        <div class="field-group">
+                            <label class="field-label">载重<span>*</span></label>
+                            <input id="capacity" class="field-input required-field" type="number" step="1" placeholder="kg">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">速度<span>*</span></label>
+                            <input id="speed" class="field-input required-field" type="number" step="0.1" placeholder="m/s">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">CA<span>*</span></label>
+                            <input id="param-CA" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">CB<span>*</span></label>
+                            <input id="param-CB" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">CH<span>*</span></label>
+                            <input id="param-CH" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">HH<span>*</span></label>
+                            <input id="param-HH" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">开门方式<span>*</span></label>
+                            <select id="opening-type" class="field-select required-field">
+                                <option value="">请选择</option>
+                                <option value="中分">中分</option>
+                                <option value="旁开">旁开</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">门机厂家<span>*</span></label>
+                            <select id="door-operator-mfr" class="field-select required-field">
+                                <option value="">请选择</option>
+                                <option value="易升">易升</option>
+                                <option value="佛马特">佛马特</option>
+                                <option value="威特">威特</option>
+                                <option value="GAL">GAL</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">JJ<span>*</span></label>
+                            <input id="param-JJ" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">贯通<span>*</span></label>
+                            <button id="through-car-toggle" type="button" class="field-input" style="text-align: left; cursor: pointer;">否</button>
+                            <input type="hidden" id="through-car" value="否">
+                        </div>
+                    </div>
+
+                    <div class="section-title-row">
+                        <div class="section-title">轿壁参数分类</div>
+                    </div>
+                    <div class="grid-three">
+                        <div class="field-group">
+                            <label class="field-label">轿厢类型<span>*</span></label>
+                            <select id="car-type" class="field-select required-field">
+                                <option value="">请选择</option>
+                                <option value="19mm轿壁">19mm轿壁</option>
+                                <option value="25mm轿壁">25mm轿壁</option>
+                                <option value="30mm轿壁">30mm轿壁</option>
+                                <option value="PMCCLC标准轿厢">PMC/CLC标准轿厢</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">轿壁厚度<span>*</span></label>
+                            <input id="car-wall-thickness" class="field-input required-field" type="number" step="0.1" placeholder="mm" value="1.2">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">EA<span>*</span></label>
+                            <input id="param-EA" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">SW<span>*</span></label>
+                            <input id="param-SW" class="field-input required-field" type="number" step="1" placeholder="mm">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">地板厚度<span>*</span></label>
+                            <input id="floor-thickness" class="field-input required-field" type="number" step="0.1" placeholder="mm">
+                        </div>
+                    </div>
+                </div>
+                <div class="print-footer">
+                    <div>第 1 页 / 共 2 页</div>
+                    <div class="footer-right print-date"></div>
+                </div>
+            </section>
+
+            <section class="card card-detail">
+                <div class="card-inner">
+                    <h1 class="print-title print-only">轿厢重量明细</h1>
+                    <div class="card-header">
+                        <div class="card-title">轿厢重量明细</div>
+                        <div class="badge"><span class="badge-dot"></span><span>公式 + 模型驱动</span></div>
+                    </div>
+                    <div class="summary-strip">
+                        <div class="summary-left">
+                            <div class="summary-title">轿厢总重量</div>
+                            <div class="summary-pill-row">
+                                <div class="summary-pill">机房类型<span id="summary-machine-room">有机房</span></div>
+                                <div class="summary-pill">补偿系数<span id="summary-factor">0.06</span></div>
+                                <div class="summary-pill">主参数<span id="summary-main-params">—</span></div>
+                            </div>
+                        </div>
+                        <div class="summary-weight">
+                            <div class="summary-weight-label">Car Mass</div>
+                            <div class="summary-weight-value" id="total-car-weight">0.00</div>
+                            <div class="summary-weight-unit">kg</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title-row">
+                        <div class="section-title">基本配置</div>
+                        <div class="section-tag">所有数量默认 1，可手动调整</div>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-head">
+                            <div>部件</div>
+                            <div>图号</div>
+                            <div>单重 kg</div>
+                            <div>数量</div>
+                            <div>总重 kg</div>
+                            <div>操作</div>
+                        </div>
+                        <div id="basic-body" class="table-body"></div>
+                        <div class="table-footer-add">
+                            <button type="button" class="add-row-btn" onclick="addCustomRow('basic')">+</button>
+                        </div>
+                    </div>
+
+                    <div class="section-title-row" style="margin-top: 14px;">
+                        <div class="section-title">特殊部件</div>
+                        <div class="section-tag">地板 / 扶手 / 其他</div>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-head">
+                            <div>部件</div>
+                            <div>规格</div>
+                            <div>单重 kg</div>
+                            <div>数量</div>
+                            <div>总重 kg</div>
+                            <div>操作</div>
+                        </div>
+                        <div id="special-body" class="table-body"></div>
+                        <div class="table-footer-add">
+                            <button type="button" class="add-row-btn" onclick="addCustomRow('special')">+</button>
+                        </div>
+                    </div>
+
+                    <div class="summary-footer">
+                        <div>基本配置质量合计: <span id="basic-sum">0.00</span> kg</div>
+                        <div>特殊部件质量合计: <span id="special-sum">0.00</span> kg</div>
+                    </div>
+                    <div class="print-footer">
+                        <div>第 2 页 / 共 2 页</div>
+                        <div class="footer-right print-date"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="toast" class="toast"><div class="toast-badge"></div><div id="toast-text"></div></div>
+
+    <div id="modal-backdrop" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">部件模型计算</div>
+                    <div class="field-note" id="modal-component-info"></div>
+                </div>
+                <button class="modal-close" type="button" id="modal-close">×</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div id="modal-error" class="error-text" style="display:none;"></div>
+            <div class="modal-footer">
+                <div id="modal-spinner" class="modal-spinner">
+                    <div class="spinner-circle"></div>
+                    <span>计算中…</span>
+                </div>
+                <button type="button" class="secondary-btn" id="modal-cancel">取消</button>
+                <button type="button" class="primary-btn" id="modal-apply">计算并填入</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="drawing-suggestions" class="suggestions" style="display:none;"></div>
+
+    <script>
+        // Set print date
+        function updatePrintDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            document.querySelectorAll('.print-date').forEach(el => {
+                el.textContent = dateStr;
+            });
+        }
+        
+        // Listen for print event
+        window.addEventListener('beforeprint', updatePrintDate);
+        // Also set on load just in case
+        window.addEventListener('DOMContentLoaded', updatePrintDate);
+
+        const DOOR_OPERATOR_DATA = [
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 600, weight: 52.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 650, weight: 57 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 700, weight: 61.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 750, weight: 66 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 800, weight: 70 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 850, weight: 74.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 900, weight: 79 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1000, weight: 87.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1100, weight: 96.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1200, weight: 105 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1300, weight: 114 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1400, weight: 122.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1500, weight: 131.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1600, weight: 140 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1700, weight: 149 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1800, weight: 157.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 1900, weight: 166.5 },
+            { mfr: "佛马特", sw: 54, type: "中分", jj: 2000, weight: 175 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 600, weight: 61.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 650, weight: 67 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 700, weight: 72 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 750, weight: 77 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 800, weight: 82 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 900, weight: 92.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1000, weight: 102.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1100, weight: 113 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1200, weight: 123 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1300, weight: 133.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1400, weight: 143.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1500, weight: 154 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1600, weight: 164 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1700, weight: 174.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1800, weight: 184.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 1900, weight: 195 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2000, weight: 205 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2100, weight: 215.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2200, weight: 225.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2300, weight: 236 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2400, weight: 246 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2500, weight: 256.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2600, weight: 266.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2700, weight: 277 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2800, weight: 287 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 2900, weight: 297.5 },
+            { mfr: "佛马特", sw: 90, type: "中分", jj: 3000, weight: 307.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1200, weight: 142.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1300, weight: 154.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1400, weight: 166.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1500, weight: 178.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1600, weight: 190 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1700, weight: 202 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1800, weight: 214 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 1900, weight: 226 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2000, weight: 237.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2100, weight: 250 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2200, weight: 262 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2300, weight: 273.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2400, weight: 285 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2500, weight: 297 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2600, weight: 309 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2700, weight: 321 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2800, weight: 332.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 2900, weight: 344.5 },
+            { mfr: "佛马特", sw: 135, type: "中分", jj: 3000, weight: 356.5 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 600, weight: 54 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 650, weight: 58.5 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 700, weight: 63 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 750, weight: 67.5 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 800, weight: 72 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 850, weight: 76.5 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 900, weight: 81 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1000, weight: 90 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1100, weight: 99 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1200, weight: 108 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1300, weight: 117 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1400, weight: 126 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1500, weight: 135 },
+            { mfr: "佛马特", sw: 54, type: "旁开", jj: 1600, weight: 144 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 600, weight: 52.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 650, weight: 57 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 700, weight: 61.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 750, weight: 66 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 800, weight: 70 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 850, weight: 74.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 900, weight: 79 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1000, weight: 87.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1100, weight: 96.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1200, weight: 105 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1300, weight: 114 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1400, weight: 122.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1500, weight: 131.5 },
+            { mfr: "佛马特", sw: 90, type: "旁开", jj: 1600, weight: 140 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 600, weight: 57 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 650, weight: 61.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 700, weight: 66 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 750, weight: 71 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 800, weight: 75.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 850, weight: 80.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 900, weight: 85 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1000, weight: 94.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1100, weight: 104 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1200, weight: 113.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1300, weight: 123 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1400, weight: 132.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1500, weight: 142 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1600, weight: 151 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1700, weight: 160.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1800, weight: 170 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 1900, weight: 179.5 },
+            { mfr: "佛马特", sw: 135, type: "旁开", jj: 2000, weight: 189 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 600, weight: 75.39 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 700, weight: 81.26 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 800, weight: 87.13 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 900, weight: 92.81 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 1000, weight: 98.68 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 1100, weight: 104.45 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 1200, weight: 110.32 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 1300, weight: 115.99 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 1400, weight: 121.87 },
+            { mfr: "易升", sw: 50, type: "中分", jj: 1500, weight: 127.64 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 600, weight: 75.69 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 700, weight: 81.56 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 800, weight: 87.43 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 900, weight: 93.21 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 1000, weight: 99.18 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 1100, weight: 104.95 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 1200, weight: 110.82 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 1300, weight: 116.59 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 1400, weight: 122.47 },
+            { mfr: "易升", sw: 65, type: "中分", jj: 1500, weight: 128.24 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 600, weight: 95.17 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 700, weight: 97.6 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 800, weight: 102.67 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 900, weight: 107.75 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1000, weight: 114.12 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1100, weight: 119.19 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1200, weight: 125.88 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1300, weight: 131.55 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1400, weight: 137.32 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1500, weight: 142.99 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1600, weight: 148.77 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1700, weight: 154.44 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1800, weight: 160.51 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 1900, weight: 182.78 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2000, weight: 188.85 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2100, weight: 195.03 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2200, weight: 201.2 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2300, weight: 207.37 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2400, weight: 220.34 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2500, weight: 226.82 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2600, weight: 233.29 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2700, weight: 239.76 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2800, weight: 246.13 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 2900, weight: 252.61 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 3000, weight: 258.98 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 3100, weight: 265.55 },
+            { mfr: "易升", sw: 90, type: "中分", jj: 3200, weight: 271.92 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 600, weight: 95.57 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 700, weight: 98.2 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 800, weight: 103.27 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 900, weight: 108.45 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1000, weight: 114.82 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1100, weight: 120.09 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1200, weight: 126.78 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1300, weight: 132.55 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1400, weight: 138.32 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1500, weight: 144.19 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1600, weight: 149.97 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1700, weight: 155.74 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1800, weight: 161.91 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 1900, weight: 184.28 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2000, weight: 190.45 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2100, weight: 196.63 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2200, weight: 202.9 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2300, weight: 209.17 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2400, weight: 222.24 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2500, weight: 228.72 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2600, weight: 235.29 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2700, weight: 241.86 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2800, weight: 248.33 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 2900, weight: 254.81 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 3000, weight: 261.28 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 3100, weight: 267.95 },
+            { mfr: "易升", sw: 105, type: "中分", jj: 3200, weight: 274.42 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 900, weight: 134.01 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1000, weight: 136.74 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1100, weight: 141.02 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1200, weight: 145.81 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1300, weight: 150.98 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1400, weight: 156.26 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1500, weight: 163.53 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1600, weight: 168.8 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1700, weight: 173.97 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1800, weight: 172.47 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 1900, weight: 178.74 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2000, weight: 183.91 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2100, weight: 189.78 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2200, weight: 196.25 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2300, weight: 201.43 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2400, weight: 207.4 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2500, weight: 238.27 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2600, weight: 244.24 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2700, weight: 250.92 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2800, weight: 257.49 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 2900, weight: 263.66 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 3000, weight: 270.63 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 3100, weight: 277.5 },
+            { mfr: "易升", sw: 130, type: "中分", jj: 3200, weight: 283.68 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 900, weight: 134.71 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1000, weight: 137.54 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1100, weight: 141.82 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1200, weight: 146.81 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1300, weight: 151.98 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1400, weight: 157.36 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1500, weight: 164.73 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1600, weight: 170 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1700, weight: 175.27 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1800, weight: 173.87 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 1900, weight: 180.24 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2000, weight: 185.51 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2100, weight: 191.38 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2200, weight: 197.95 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2300, weight: 203.23 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2400, weight: 209.3 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2500, weight: 240.17 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2600, weight: 246.24 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2700, weight: 253.02 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2800, weight: 259.69 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 2900, weight: 265.96 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 3000, weight: 272.93 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 3100, weight: 279.9 },
+            { mfr: "易升", sw: 145, type: "中分", jj: 3200, weight: 286.18 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 600, weight: 42.8 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 700, weight: 44.7 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 800, weight: 48.7 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 900, weight: 50.6 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 1000, weight: 52.6 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 1100, weight: 56.5 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 1200, weight: 60.5 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 1300, weight: 64.4 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 1400, weight: 77.8 },
+            { mfr: "易升", sw: 50, type: "旁开", jj: 1500, weight: 82.4 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 600, weight: 42.8 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 700, weight: 44.7 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 800, weight: 48.7 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 900, weight: 50.6 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 1000, weight: 52.6 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 1100, weight: 56.5 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 1200, weight: 60.5 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 1300, weight: 64.4 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 1400, weight: 77.8 },
+            { mfr: "易升", sw: 65, type: "旁开", jj: 1500, weight: 82.4 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 600, weight: 72.79 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 700, weight: 78.36 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 800, weight: 83.93 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 900, weight: 89.51 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1000, weight: 95.08 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1100, weight: 100.55 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1200, weight: 106.22 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1300, weight: 121.19 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1400, weight: 127.07 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1500, weight: 132.84 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1600, weight: 139.01 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1700, weight: 147.28 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1800, weight: 161.46 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 1900, weight: 167.93 },
+            { mfr: "易升", sw: 90, type: "旁开", jj: 2000, weight: 174.3 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 600, weight: 73.19 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 700, weight: 78.96 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 800, weight: 84.53 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 900, weight: 90.21 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1000, weight: 95.78 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1100, weight: 101.45 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1200, weight: 107.12 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1300, weight: 122.19 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1400, weight: 128.07 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1500, weight: 134.04 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1600, weight: 140.21 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1700, weight: 148.58 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1800, weight: 162.86 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 1900, weight: 169.43 },
+            { mfr: "易升", sw: 105, type: "旁开", jj: 2000, weight: 175.9 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 900, weight: 98.23 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1000, weight: 103.6 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1100, weight: 108.88 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1200, weight: 115.05 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1300, weight: 121.32 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1400, weight: 126.59 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1500, weight: 138.67 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1600, weight: 145.14 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1700, weight: 150.81 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1800, weight: 158.18 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 1900, weight: 164.16 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 2000, weight: 169.73 },
+            { mfr: "易升", sw: 130, type: "旁开", jj: 2100, weight: 176.3 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 900, weight: 98.93 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1000, weight: 104.4 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1100, weight: 109.68 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1200, weight: 116.05 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1300, weight: 122.32 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1400, weight: 127.69 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1500, weight: 139.87 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1600, weight: 146.34 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1700, weight: 152.11 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1800, weight: 159.58 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 1900, weight: 165.66 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 2000, weight: 171.33 },
+            { mfr: "易升", sw: 145, type: "旁开", jj: 2100, weight: 177.9 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 600, weight: 77 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 650, weight: 78 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 700, weight: 79 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 750, weight: 81 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 800, weight: 88 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 850, weight: 90 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 900, weight: 93 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 950, weight: 94 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1000, weight: 109 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1050, weight: 110 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1100, weight: 111 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1150, weight: 112 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1200, weight: 116 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1250, weight: 117 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1300, weight: 135 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1350, weight: 137 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1400, weight: 138 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1450, weight: 162 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1500, weight: 172 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1550, weight: 173 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1600, weight: 175 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1650, weight: 177 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1700, weight: 180 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1750, weight: 182 },
+            { mfr: "威特", sw: 75, type: "中分", jj: 1800, weight: 192 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 600, weight: 77 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 650, weight: 79 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 700, weight: 80 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 750, weight: 82 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 800, weight: 84 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 850, weight: 86 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 900, weight: 94 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 950, weight: 95 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1000, weight: 106 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1050, weight: 107 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1100, weight: 108 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1150, weight: 109 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1200, weight: 118 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1250, weight: 122 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1300, weight: 131 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1350, weight: 133 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1400, weight: 134 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1450, weight: 163 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1500, weight: 172 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1550, weight: 174 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1600, weight: 176 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1650, weight: 178 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1700, weight: 180 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1750, weight: 183 },
+            { mfr: "威特", sw: 75, type: "旁开", jj: 1800, weight: 191 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 700, weight: 65 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 800, weight: 70 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 900, weight: 76 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 1000, weight: 85 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 1100, weight: 90 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 1200, weight: 97 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 1300, weight: 101 },
+            { mfr: "威特", sw: 40, type: "中分", jj: 1400, weight: 108 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 700, weight: 65 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 800, weight: 70 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 900, weight: 76 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 1000, weight: 85 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 1100, weight: 90 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 1200, weight: 97 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 1300, weight: 101 },
+            { mfr: "威特", sw: 80, type: "旁开", jj: 1400, weight: 108 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1200, weight: 126 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1250, weight: 127 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1300, weight: 128 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1350, weight: 130 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1400, weight: 132 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1450, weight: 134 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1500, weight: 141 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1550, weight: 142 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1600, weight: 143 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1650, weight: 144 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1700, weight: 145 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1750, weight: 146 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1800, weight: 170 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1850, weight: 172 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1900, weight: 175 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 1950, weight: 177 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2000, weight: 186 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2050, weight: 188 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2100, weight: 189 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2150, weight: 190 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2200, weight: 191 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2250, weight: 192 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2300, weight: 193 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2350, weight: 194 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2400, weight: 216 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2450, weight: 217 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2500, weight: 218 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2550, weight: 242 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2600, weight: 243 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2650, weight: 244 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2700, weight: 245 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2750, weight: 247 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2800, weight: 248 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2850, weight: 288 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2900, weight: 292 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 2950, weight: 294 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 3000, weight: 307 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 3050, weight: 309 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 3100, weight: 312 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 3150, weight: 314 },
+            { mfr: "威特", sw: 90, type: "中分", jj: 3200, weight: 316 },
+            { mfr: "GAL", sw: 95.25, type: "中分", jj: 1066.8, weight: 208 },
+            { mfr: "GAL", sw: 95.25, type: "中分", jj: 1219.2, weight: 221.2 },
+            { mfr: "GAL", sw: 101.6, type: "中分", jj: 1066.8, weight: 217.2 },
+            { mfr: "GAL", sw: 101.6, type: "中分", jj: 1219.2, weight: 228.7 },
+            { mfr: "GAL", sw: 133.25, type: "旁开", jj: 1066.8, weight: 200.4 },
+            { mfr: "GAL", sw: 133.25, type: "旁开", jj: 1219.2, weight: 213.9 },
+            { mfr: "GAL", sw: 139.7, type: "旁开", jj: 1066.8, weight: 214.3 },
+            { mfr: "GAL", sw: 139.7, type: "旁开", jj: 1219.2, weight: 229.8 }
+        ];
+
+        const BASIC_CONFIG = {
+            "有机房": [
+                { key: "cab_wall", name: "轿壁" },
+                { key: "door_header", name: "门楣" },
+                { key: "front_side_column", name: "前壁/侧柱" },
+                { key: "door_operator", name: "轿门机" },
+                { key: "car_floor", name: "轿厢底" },
+                { key: "top_base", name: "轿顶基板" },
+                { key: "cop", name: "COP", defaultUnit: 15 },
+                { key: "car_frame", name: "轿厢架含护栏" },
+                { key: "safety_gear", name: "安全钳装置含钳口" },
+                { key: "guide_shoe", name: "轿厢导靴", defaultQty: 4 },
+                { key: "top_box", name: "轿顶盒", defaultUnit: 15 },
+                { key: "ceiling", name: "吊顶", formula: "ceiling" }
+            ],
+            "无机房": [
+                { key: "cab_wall", name: "轿壁" },
+                { key: "door_header", name: "门楣" },
+                { key: "front_side_column", name: "前壁/侧柱" },
+                { key: "door_operator", name: "轿门机" },
+                { key: "car_floor", name: "轿厢底" },
+                { key: "top_base", name: "轿顶基板" },
+                { key: "cop", name: "COP", defaultUnit: 15 },
+                { key: "car_frame", name: "轿厢架含护栏" },
+                { key: "pulley_group", name: "轿底滑轮组" },
+                { key: "safety_gear", name: "安全钳装置含钳口" },
+                { key: "guide_shoe", name: "轿厢导靴", defaultQty: 4 },
+                { key: "top_box", name: "轿顶盒", defaultUnit: 15 },
+                { key: "ceiling", name: "吊顶", formula: "ceiling" }
+            ],
+            "PMCCLC": [
+                { key: "entire_car", name: "整个轿厢" },
+                { key: "door_operator", name: "轿门机" },
+                { key: "cop", name: "COP" },
+                { key: "car_frame_assy", name: "轿厢架装配" },
+                { key: "rope_pulley", name: "含反绳轮装置" },
+                { key: "car_bottom_bracket", name: "轿底托架" },
+                { key: "safety_gear_device", name: "安全钳装置含钳口" },
+                { key: "tie_rod", name: "拉杆挂钩" },
+                { key: "accessories", name: "附件" },
+                { key: "guide_shoe", name: "轿厢导靴", defaultQty: 4 },
+                { key: "top_box", name: "轿顶盒" }
+            ]
+        };
+
+        const SPECIAL_CONFIG = [
+            { key: "floor", name: "地板", formula: "floor" },
+            { key: "handrail", name: "扶手" },
+            { key: "other", name: "其他" }
+        ];
+
+        const MAIN_PARAM_MAP = {
+            "CA": "param-CA",
+            "CB": "param-CB",
+            "CH": "param-CH",
+            "HH": "param-HH",
+            "JJ": "param-JJ",
+            "载重": "capacity",
+            "速度": "speed"
+        };
+
+        let currentMachineRoom = "有机房";
+        let modalState = {
+            rowKey: null,
+            section: null,
+            component: null
+        };
+        let componentsIndex = [];
+        let activeSuggestionsInput = null;
+
+        function parseNumber(value) {
+            const n = parseFloat(value);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function getDoorOperatorWeight(mfr, type, jj, sw) {
+            if (!mfr || !type || !jj) return 0;
+            
+            // Try exact match with SW first
+            if (sw) {
+                const matchWithSW = DOOR_OPERATOR_DATA.find(d => 
+                    d.mfr === mfr && 
+                    d.type === type && 
+                    d.jj === jj && 
+                    d.sw === sw
+                );
+                if (matchWithSW) return matchWithSW.weight;
+            }
+            
+            // Try match without SW (or if SW match failed)
+            // But we should prioritize SW match if SW is provided. 
+            // If SW provided but no match, maybe fall back to ignoring SW? 
+            // The CSV structure implies SW is a defining characteristic for some (e.g. 佛马特 54 vs 90).
+            // If user inputs SW=54, we shouldn't return the weight for SW=90.
+            
+            // However, if the user leaves SW empty (0), we might want to return *some* default?
+            // Or if the specific SW doesn't exist in the table (e.g. user types 55), should we find closest?
+            
+            // For now, strict logic:
+            // 1. If SW is provided (>0), find exact match on Mfr + Type + JJ + SW.
+            // 2. If SW is NOT provided (0 or empty), find match on Mfr + Type + JJ (taking the first one found).
+            
+            if (sw > 0) {
+                // Already tried exact match above. If not found, maybe return 0 to indicate mismatch?
+                // Or find closest SW? Let's return 0 for now to encourage correct input.
+                return 0;
+            } else {
+                // SW not provided, return first match
+                const match = DOOR_OPERATOR_DATA.find(d => 
+                    d.mfr === mfr && 
+                    d.type === type && 
+                    d.jj === jj
+                );
+                return match ? match.weight : 0;
+            }
+        }
+
+        function calculateWallWeight(type, CA, CB, CH, thk, isThroughCar) {
+            if (!CA || !CB || !CH || !thk) return 0;
+            
+            let L1 = 0; // Rear
+            let L2 = 0; // Side * 2
+
+            // Density
+            const rho =  7.85;
+
+            if (type === "19mm轿壁") {
+                // --- 19mm Logic (S321B858) ---
+                // Rear
+                const W_rear = CA + 80;
+                let N_rear = Math.round(W_rear / 450);
+                if (N_rear === 0) N_rear = 1;
+                const w_rear = W_rear / N_rear;
+                const h_rear = CH - 70;
+                
+                // Panel Mass: (w + 49) * h * thk
+                const m_panel_r = (w_rear + 49) * h_rear * thk * rho / 1000000;
+                
+                // Stiffeners
+                // Long: 1.5mm thk, 102mm width, h - 106 length
+                const n_long_r = w_rear > 600 ? 3 : (w_rear > 400 ? 2 : 1);
+                const m_long_r = n_long_r * 1.5 * 102 * (h_rear - 106) * 7.85 / 1000000;
+                
+                // Cross (Up/Low): 2mm thk, 76mm width, w - 4 length
+                // 1 Upper + 1 Lower
+                const m_cross_r = 2 * 2 * 76 * (w_rear - 4) * 7.85 / 1000000;
+                
+                L1 = (m_panel_r + m_long_r + m_cross_r) * N_rear;
+
+                // Side
+                const W_side = CB;
+                let N_side = Math.round(W_side / 450);
+                if (N_side === 0) N_side = 1;
+                const w_side = W_side / N_side;
+                const h_side = CH - 70;
+                
+                const m_panel_s = (w_side + 49) * h_side * thk * rho / 1000000;
+                const n_long_s = w_side > 600 ? 3 : (w_side > 400 ? 2 : 1);
+                const m_long_s = n_long_s * 1.5 * 102 * (h_side - 106) * 7.85 / 1000000;
+                const m_cross_s = 2 * 2 * 76 * (w_side - 4) * 7.85 / 1000000;
+                
+                L2 = (m_panel_s + m_long_s + m_cross_s) * N_side * 2;
+
+            } else if (type === "30mm轿壁") {
+                // --- 30mm Logic (VB0723) ---
+                // Rear
+                const W_rear = CA + 100;
+                let N_rear = Math.ceil(W_rear / 450); // Ceiling
+                if (N_rear === 0) N_rear = 1;
+                const w_rear = W_rear / N_rear;
+                const h_rear = CH - 82;
+                
+                // Panel: (w + 74) * h * thk
+                const m_panel_r = (w_rear + 74) * h_rear * thk * rho / 1000000;
+                
+                // Long: 1.5mm thk, 122mm width, h - 108 length
+                const n_long_r = w_rear > 700 ? 3 : (w_rear > 450 ? 2 : 1);
+                const m_long_r = n_long_r * 1.5 * 122 * (h_rear - 108) * 7.85 / 1000000;
+                
+                // Upper: 2mm thk, 97mm width
+                const m_up_r = 1 * 2 * 97 * (w_rear - 4) * 7.85 / 1000000;
+                // Lower: 2mm thk, 106mm width
+                const m_low_r = 1 * 2 * 106 * (w_rear - 4) * 7.85 / 1000000;
+                
+                L1 = (m_panel_r + m_long_r + m_up_r + m_low_r) * N_rear;
+
+                // Side
+                const W_side = CB;
+                let N_side = Math.floor(W_side / 450); // Floor (ROUNDDOWN)
+                if (N_side === 0) N_side = 1;
+                const w_side = W_side / N_side;
+                const h_side = CH - 82;
+                
+                const m_panel_s = (w_side + 74) * h_side * thk * rho / 1000000;
+                const n_long_s = w_side > 700 ? 3 : (w_side > 450 ? 2 : 1);
+                const m_long_s = n_long_s * 1.5 * 122 * (h_side - 108) * 7.85 / 1000000;
+                const m_up_s = 1 * 2 * 97 * (w_side - 4) * 7.85 / 1000000;
+                const m_low_s = 1 * 2 * 106 * (w_side - 4) * 7.85 / 1000000;
+                
+                L2 = (m_panel_s + m_long_s + m_up_s + m_low_s) * N_side * 2;
+
+            } else if (type === "25mm轿壁") {
+                // --- 25mm Logic (K321B418) ---
+                // Rear
+                const W_rear = CA + 60;
+                let N_rear = Math.round(W_rear / 450);
+                if (N_rear === 0) N_rear = 1;
+                const w_rear = W_rear / N_rear;
+                // h = CH + 13 + 45.2 = CH + 58.2
+                const h_rear = CH + 58.2;
+                
+                // Panel: (w + 60.4) * h * thk * 7.8
+                const m_panel_r = (w_rear + 60.4) * h_rear * thk * rho / 1000000;
+                
+                // Long: 1.2mm thk, 119mm width, len = CH + 13 - 3.5 = CH + 9.5
+                const n_long_r = w_rear > 700 ? 3 : (w_rear > 450 ? 2 : 1);
+                const m_long_r = n_long_r * 1.2 * 119 * (CH + 9.5) * 7.8 / 1000000;
+                
+                // No cross stiffeners in excel sheet 3
+                
+                L1 = (m_panel_r + m_long_r) * N_rear;
+
+                // Side
+                const W_side = CB;
+                let N_side = Math.round(W_side / 450);
+                if (N_side === 0) N_side = 1;
+                const w_side = W_side / N_side;
+                const h_side = CH + 58.2;
+                
+                const m_panel_s = (w_side + 60.4) * h_side * thk * rho / 1000000;
+                const n_long_s = w_side > 700 ? 3 : (w_side > 450 ? 2 : 1);
+                const m_long_s = n_long_s * 1.2 * 119 * (CH + 9.5) * 7.8 / 1000000;
+                
+                L2 = (m_panel_s + m_long_s) * N_side * 2;
+            }
+
+            return isThroughCar ? L2 : (L1 + L2);
+        }
+
+        function calculateFrontWallWeight(type, CA, CH, JJ, thk) {
+            if (!CA || !CH || !JJ || !thk) return 0;
+            
+            // Determine X offset based on type (same as Rear Wall offset)
+            let X = 0;
+            if (type === "19mm轿壁") X = 80;
+            else if (type === "30mm轿壁") X = 100;
+            else if (type === "25mm轿壁") X = 60;
+            else return 0;
+
+            const W_front = (CA + X - JJ) / 2;
+            if (W_front <= 0) return 0;
+
+            const rho = 7.85;
+            let singleWeight = 0;
+
+            if (type === "19mm轿壁") {
+                // Similar to 19mm Rear logic but with width = W_front
+                const h_front = CH - 70;
+                
+                // Panel
+                const m_panel = (W_front + 49) * h_front * thk * rho / 1000000;
+                
+                // Stiffeners
+                const n_long = W_front > 600 ? 3 : (W_front > 400 ? 2 : 1);
+                const m_long = n_long * 1.5 * 102 * (h_front - 106) * 7.85 / 1000000;
+                
+                // Cross (Up/Low)
+                const m_cross = 2 * 2 * 76 * (W_front - 4) * 7.85 / 1000000;
+                
+                singleWeight = m_panel + m_long + m_cross;
+
+            } else if (type === "30mm轿壁") {
+                // Similar to 30mm Rear logic
+                const h_front = CH - 82;
+                
+                // Panel
+                const m_panel = (W_front + 74) * h_front * thk * rho / 1000000;
+                
+                // Long
+                const n_long = W_front > 700 ? 3 : (W_front > 450 ? 2 : 1);
+                const m_long = n_long * 1.5 * 122 * (h_front - 108) * 7.85 / 1000000;
+                
+                // Upper & Lower
+                const m_up = 1 * 2 * 97 * (W_front - 4) * 7.85 / 1000000;
+                const m_low = 1 * 2 * 106 * (W_front - 4) * 7.85 / 1000000;
+                
+                singleWeight = m_panel + m_long + m_up + m_low;
+
+            } else if (type === "25mm轿壁") {
+                // Similar to 25mm Rear logic
+                const h_front = CH + 58.2;
+                
+                // Panel
+                const m_panel = (W_front + 60.4) * h_front * thk * rho / 1000000;
+                
+                // Long
+                const n_long = W_front > 700 ? 3 : (W_front > 450 ? 2 : 1);
+                const m_long = n_long * 1.2 * 119 * (CH + 9.5) * 7.8 / 1000000;
+                
+                singleWeight = m_panel + m_long;
+            }
+
+            // Result * 2 (Left + Right)
+            let total = singleWeight * 2;
+            
+            // If W_front <= 100, multiply by 2 again
+            if (W_front <= 100) {
+                total *= 2;
+            }
+
+            return total;
+        }
+
+        function updateFactorFromRule() {
+            const capacity = parseNumber(document.getElementById("capacity").value);
+            const type = document.getElementById("machine-room-type").value;
+            if (!capacity) {
+                return;
+            }
+            let factor;
+            if (type === "无机房" && capacity < 2000) {
+                factor = 0.10;
+            } else {
+                factor = 0.06;
+            }
+            const factorInput = document.getElementById("compensation-factor");
+            factorInput.value = factor.toFixed(2);
+            updateFactorDisplay();
+        }
+
+        function updateFactorDisplay() {
+            const factorInput = document.getElementById("compensation-factor");
+            const f = parseNumber(factorInput.value);
+            document.getElementById("factor-display").textContent = (f * 100).toFixed(1).replace(/\.0$/, "") + "%";
+        }
+
+        function addCustomRow(section) {
+            const body = document.getElementById(section + "-body");
+            const row = document.createElement("div");
+            row.className = "table-row";
+            row.dataset.section = section;
+            row.dataset.key = "custom-" + Date.now();
+
+            // Component Name (Input)
+            const nameCell = document.createElement("div");
+            const nameInput = document.createElement("input");
+            nameInput.className = "field-input";
+            nameInput.placeholder = "输入部件名称";
+            nameInput.style.width = "100%";
+            nameCell.appendChild(nameInput);
+
+            // Spec/Drawing
+            const specCell = document.createElement("div");
+            const specInput = document.createElement("input");
+            specInput.className = "field-input";
+            specInput.placeholder = section === "basic" ? "输入图号" : "输入规格";
+            specInput.dataset.role = "drawing";
+            specCell.appendChild(specInput);
+
+            // Unit Weight
+            const unitCell = document.createElement("div");
+            const unitInput = document.createElement("input");
+            unitInput.type = "number";
+            unitInput.step = "0.01";
+            unitInput.className = "field-input small-input";
+            unitInput.dataset.role = "unit";
+            unitCell.appendChild(unitInput);
+
+            // Quantity
+            const qtyCell = document.createElement("div");
+            const qtyInput = document.createElement("input");
+            qtyInput.type = "number";
+            qtyInput.step = "1";
+            qtyInput.className = "field-input small-input-qty";
+            qtyInput.value = "1";
+            qtyInput.dataset.role = "quantity";
+            qtyCell.appendChild(qtyInput);
+
+            // Total
+            const totalCell = document.createElement("div");
+            totalCell.className = "cell-mono cell-total-highlight";
+            totalCell.dataset.role = "total";
+            totalCell.textContent = "0.00";
+
+            // Actions (Delete)
+            const actionCell = document.createElement("div");
+            actionCell.className = "cell-actions";
+            const delBtn = document.createElement("button");
+            delBtn.className = "delete-btn";
+            delBtn.innerHTML = "×";
+            delBtn.title = "删除";
+            delBtn.type = "button";
+            delBtn.onclick = function() {
+                row.remove();
+                recalculateAll();
+            };
+            actionCell.appendChild(delBtn);
+
+            row.appendChild(nameCell);
+            row.appendChild(specCell);
+            row.appendChild(unitCell);
+            row.appendChild(qtyCell);
+            row.appendChild(totalCell);
+            row.appendChild(actionCell);
+
+            body.appendChild(row);
+            
+            // Auto scroll to bottom
+            setTimeout(() => {
+                body.scrollTop = body.scrollHeight;
+                nameInput.focus();
+            }, 50);
+        }
+
+        function buildTables() {
+            const basicBody = document.getElementById("basic-body");
+            const specialBody = document.getElementById("special-body");
+            basicBody.innerHTML = "";
+            specialBody.innerHTML = "";
+
+            const carType = document.getElementById("car-type").value;
+            let configKey = currentMachineRoom; // default to machine room type
+
+            // If car type is PMCCLC, override config key
+            if (carType === "PMCCLC标准轿厢") {
+                configKey = "PMCCLC";
+            }
+
+            const basicList = BASIC_CONFIG[configKey] || BASIC_CONFIG["有机房"]; // fallback
+            const isThroughCar = document.getElementById("through-car").value === "是";
+
+            basicList.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "table-row";
+                row.dataset.section = "basic";
+                row.dataset.key = item.key;
+
+                const nameCell = document.createElement("div");
+                nameCell.innerHTML = `<div class="cell-label">${item.name}</div>`;
+
+                const drawingCell = document.createElement("div");
+                const drawingInput = document.createElement("input");
+                drawingInput.className = "field-input";
+                drawingInput.placeholder = "输入图号";
+                drawingInput.dataset.role = "drawing";
+                drawingCell.appendChild(drawingInput);
+
+                const unitCell = document.createElement("div");
+                const unitInput = document.createElement("input");
+                unitInput.type = "number";
+                unitInput.step = "0.01";
+                unitInput.className = "field-input small-input";
+                unitInput.dataset.role = "unit";
+                if (item.defaultUnit != null) {
+                    unitInput.value = item.defaultUnit.toString();
+                }
+                unitCell.appendChild(unitInput);
+
+                const qtyCell = document.createElement("div");
+                const qtyInput = document.createElement("input");
+                qtyInput.type = "number";
+                qtyInput.step = "1";
+                qtyInput.className = "field-input small-input-qty";
+                
+                // Determine default quantity
+                let defaultQty = item.defaultQty || 1;
+                // Override for Through Car
+                if (isThroughCar && ["door_header", "front_side_column", "door_operator"].includes(item.key)) {
+                    defaultQty = 2;
+                }
+                qtyInput.value = defaultQty.toString();
+                
+                qtyInput.dataset.role = "quantity";
+                qtyCell.appendChild(qtyInput);
+
+                const totalCell = document.createElement("div");
+                totalCell.className = "cell-mono cell-total-highlight";
+                totalCell.dataset.role = "total";
+                totalCell.textContent = "0.00";
+
+                const actionCell = document.createElement("div");
+                actionCell.className = "cell-actions";
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "pill-button";
+                btn.textContent = "计算";
+                btn.dataset.role = "model";
+                actionCell.appendChild(btn);
+
+                row.appendChild(nameCell);
+                row.appendChild(drawingCell);
+                row.appendChild(unitCell);
+                row.appendChild(qtyCell);
+                row.appendChild(totalCell);
+                row.appendChild(actionCell);
+
+                basicBody.appendChild(row);
+            });
+
+            SPECIAL_CONFIG.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "table-row";
+                row.dataset.section = "special";
+                row.dataset.key = item.key;
+
+                const nameCell = document.createElement("div");
+                nameCell.innerHTML = `<div class="cell-label">${item.name}</div>`;
+
+                const specCell = document.createElement("div");
+                if (item.key === "floor") {
+                    const materialSelect = document.createElement("select");
+                    materialSelect.className = "field-select small-select";
+                    materialSelect.dataset.role = "floor-material";
+                    const materials = [
+                        { value: "marble", label: "大理石", density: 2.5 },
+                        { value: "pvc", label: "PVC", density: 1.4 },
+                        { value: "stainless", label: "不锈钢", density: 7.9 },
+                        { value: "aluminum", label: "铝", density: 2.7 }
+                    ];
+                    materials.forEach(m => {
+                        const opt = document.createElement("option");
+                        opt.value = m.value;
+                        opt.textContent = m.label;
+                        opt.dataset.density = m.density;
+                        materialSelect.appendChild(opt);
+                    });
+                    specCell.appendChild(materialSelect);
+                } else {
+                    const drawingInput = document.createElement("input");
+                    drawingInput.className = "field-input";
+                    drawingInput.placeholder = "输入规格";
+                    drawingInput.dataset.role = "drawing";
+                    specCell.appendChild(drawingInput);
+                }
+
+                const unitCell = document.createElement("div");
+                const unitInput = document.createElement("input");
+                unitInput.type = "number";
+                unitInput.step = "0.01";
+                unitInput.className = "field-input small-input";
+                unitInput.dataset.role = "unit";
+                unitCell.appendChild(unitInput);
+
+                const qtyCell = document.createElement("div");
+                const qtyInput = document.createElement("input");
+                qtyInput.type = "number";
+                qtyInput.step = "1";
+                qtyInput.className = "field-input small-input-qty";
+                qtyInput.value = "1";
+                qtyInput.dataset.role = "quantity";
+                qtyCell.appendChild(qtyInput);
+
+                const totalCell = document.createElement("div");
+                totalCell.className = "cell-mono cell-total-highlight";
+                totalCell.dataset.role = "total";
+                totalCell.textContent = "0.00";
+
+                const actionCell = document.createElement("div");
+                actionCell.className = "cell-actions";
+                if (!item.formula) {
+                    const span = document.createElement("div");
+                    span.className = "cell-sub";
+                    span.textContent = "手动输入";
+                    actionCell.appendChild(span);
+                } else {
+                    const span = document.createElement("div");
+                    span.className = "cell-sub";
+                    span.textContent = item.key === "floor" ? "ρ×t×CA×CB" : "CA×CB×17";
+                    actionCell.appendChild(span);
+                }
+
+                row.appendChild(nameCell);
+                row.appendChild(specCell);
+                row.appendChild(unitCell);
+                row.appendChild(qtyCell);
+                row.appendChild(totalCell);
+                row.appendChild(actionCell);
+
+                specialBody.appendChild(row);
+            });
+
+            attachTableEvents();
+            recalculateAll();
+        }
+
+        function attachTableEvents() {
+            const container = document.querySelector(".page");
+            container.addEventListener("input", function (event) {
+                const target = event.target;
+                if (target.classList.contains("field-input") || target.classList.contains("field-select")) {
+                    recalculateAll();
+                }
+                if (target.dataset && target.dataset.role === "drawing") {
+                    showDrawingSuggestions(target);
+                }
+            });
+
+            const basicBody = document.getElementById("basic-body");
+            const specialBody = document.getElementById("special-body");
+
+            [basicBody, specialBody].forEach(body => {
+                body.addEventListener("click", function (event) {
+                    const btn = event.target.closest("button[data-role='model']");
+                    if (!btn) return;
+                    const row = btn.closest(".table-row");
+                    openModelModalForRow(row);
+                });
+            });
+        }
+
+        function getMainParamsSummary() {
+            const capacity = parseNumber(document.getElementById("capacity").value);
+            const speed = parseNumber(document.getElementById("speed").value);
+            const CA = parseNumber(document.getElementById("param-CA").value);
+            const CB = parseNumber(document.getElementById("param-CB").value);
+            const CH = parseNumber(document.getElementById("param-CH").value);
+            const HH = parseNumber(document.getElementById("param-HH").value);
+            const JJ = parseNumber(document.getElementById("param-JJ").value);
+            const parts = [];
+            if (capacity) parts.push(`载重 ${capacity}`);
+            if (speed) parts.push(`速度 ${speed}`);
+            if (CA) parts.push(`CA ${CA}`);
+            if (CB) parts.push(`CB ${CB}`);
+            if (CH) parts.push(`CH ${CH}`);
+            if (HH) parts.push(`HH ${HH}`);
+            if (JJ) parts.push(`JJ ${JJ}`);
+            return parts.length ? parts.join(" · ") : "—";
+        }
+
+        function recalculateAll() {
+            const factorInput = document.getElementById("compensation-factor");
+            const factor = parseNumber(factorInput.value);
+            updateFactorDisplay();
+
+            let basicSum = 0;
+            let specialSum = 0;
+
+            const CA = parseNumber(document.getElementById("param-CA").value);
+            const CB = parseNumber(document.getElementById("param-CB").value);
+            const CH = parseNumber(document.getElementById("param-CH").value);
+            const JJ = parseNumber(document.getElementById("param-JJ").value);
+            const carType = document.getElementById("car-type").value;
+            const carWallThk = parseNumber(document.getElementById("car-wall-thickness").value);
+            const isThroughCar = document.getElementById("through-car").value === "是";
+
+            document.querySelectorAll(".table-row").forEach(row => {
+                const section = row.dataset.section;
+                const key = row.dataset.key;
+                const unitInput = row.querySelector("input[data-role='unit']");
+                const qtyInput = row.querySelector("input[data-role='quantity']");
+                const totalCell = row.querySelector("[data-role='total']");
+
+                if (!unitInput || !qtyInput || !totalCell) return;
+
+                // --- Special Logic for Door Operator ---
+                if (section === "basic" && key === "door_operator") {
+                    const mfr = document.getElementById("door-operator-mfr").value;
+                    const opType = document.getElementById("opening-type").value;
+                    const jj = parseNumber(document.getElementById("param-JJ").value);
+                    const sw = parseNumber(document.getElementById("param-SW").value);
+                    
+                    const weight = getDoorOperatorWeight(mfr, opType, jj, sw);
+                    if (weight > 0) {
+                        unitInput.value = weight.toFixed(2);
+                        unitInput.readOnly = true;
+                        unitInput.title = `自动匹配: ${mfr} ${opType} JJ=${jj} ${sw ? "SW="+sw : ""}`;
+                    } else {
+                        unitInput.readOnly = false;
+                        unitInput.title = "";
+                    }
+                }
+
+                // --- Special Logic for Floor ---
+                if (section === "special" && key === "floor") {
+                    const materialSelect = row.querySelector("select[data-role='floor-material']");
+                    let density = 2.5;
+                    if (materialSelect) {
+                        const opt = materialSelect.selectedOptions[0];
+                        if (opt && opt.dataset.density) {
+                            density = parseNumber(opt.dataset.density);
+                        }
+                    }
+                    const thickness = parseNumber(document.getElementById("floor-thickness").value);
+                    let unit = 0;
+                    if (density && thickness && CA && CB) {
+                        unit = density * thickness * CA * CB / 1000000;
+                    }
+                    unitInput.value = unit ? unit.toFixed(2) : "";
+                }
+
+                // --- Special Logic for Ceiling (Basic) ---
+                if (section === "basic" && key === "ceiling") {
+                    let unit = 0;
+                    if (CA && CB) {
+                        unit = CA * CB * 17 / 1000000;
+                    }
+                    unitInput.value = unit ? unit.toFixed(2) : "";
+                }
+
+                // --- Special Logic for Cab Wall (Basic) ---
+                if (section === "basic" && key === "cab_wall") {
+                    // Only calculate if we have a valid type
+                    if (carType && CA && CB && CH && carWallThk) {
+                         const totalWallWeight = calculateWallWeight(carType, CA, CB, CH, carWallThk, isThroughCar);
+                         unitInput.value = totalWallWeight > 0 ? totalWallWeight.toFixed(2) : "";
+                         // Add a visual indicator or make it readonly? 
+                         // For now just update value. The user can still override if they really want to, 
+                         // but it will be overwritten on next recalc.
+                         // Maybe set readonly to true if auto-calculated?
+                         unitInput.readOnly = true;
+                         unitInput.title = isThroughCar ? "贯通梯：仅计算两侧壁 (L2)" : "非贯通：后壁 (L1) + 两侧壁 (L2)";
+                    } else {
+                         unitInput.readOnly = false;
+                         unitInput.title = "";
+                    }
+                }
+
+                // --- Special Logic for Front Wall/Side Column (Basic) ---
+                if (section === "basic" && key === "front_side_column") {
+                    if (carType && CA && CH && JJ && carWallThk) {
+                        const totalFrontWeight = calculateFrontWallWeight(carType, CA, CH, JJ, carWallThk);
+                        unitInput.value = totalFrontWeight > 0 ? totalFrontWeight.toFixed(2) : "";
+                        unitInput.readOnly = true;
+                        unitInput.title = `自动计算: 前壁 (W_front = (CA+X-JJ)/2) * 2${(CA + 100 - JJ) / 2 <= 100 ? " (W_front<=100 -> *2)" : ""}`;
+                    } else {
+                        unitInput.readOnly = false;
+                        unitInput.title = "";
+                    }
+                }
+
+                const unit = parseNumber(unitInput.value);
+                const qty = parseNumber(qtyInput.value) || 0;
+                const total = unit * qty;
+                totalCell.textContent = total ? total.toFixed(2) : "0.00";
+
+                if (section === "basic") {
+                    basicSum += total;
+                } else {
+                    specialSum += total;
+                }
+            });
+
+            document.getElementById("basic-sum").textContent = basicSum.toFixed(2);
+            document.getElementById("special-sum").textContent = specialSum.toFixed(2);
+
+            const carWeight = basicSum * (1 + factor) + specialSum;
+            document.getElementById("total-car-weight").textContent = carWeight.toFixed(2);
+
+            document.getElementById("summary-machine-room").textContent = currentMachineRoom;
+            document.getElementById("summary-factor").textContent = factor.toFixed(2);
+            document.getElementById("summary-main-params").textContent = getMainParamsSummary();
+        }
+
+        function showToast(message, isError) {
+            const toast = document.getElementById("toast");
+            const text = document.getElementById("toast-text");
+            text.textContent = message;
+            toast.classList.toggle("toast-error", !!isError);
+            toast.style.display = "flex";
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.style.display = "none";
+            }, 3200);
+        }
+
+        async function openModelModalForRow(row) {
+            const drawingInput = row.querySelector("input[data-role='drawing']");
+            if (!drawingInput) {
+                showToast("当前行不支持模型计算", true);
+                return;
+            }
+            const drawingNoRaw = drawingInput.value.trim();
+            if (!drawingNoRaw) {
+                showToast("请先输入部件图号", true);
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/component/${encodeURIComponent(drawingNoRaw)}`);
+                if (!res.ok) {
+                    showToast("未找到该部件的模型/公式", true);
+                    return;
+                }
+                const component = await res.json();
+                modalState = {
+                    rowKey: row.dataset.key,
+                    section: row.dataset.section,
+                    component
+                };
+                renderModal(component, drawingNoRaw);
+            } catch (err) {
+                showToast("请求部件信息失败", true);
+            }
+        }
+
+        function renderModal(component, drawingNoRaw) {
+            const backdrop = document.getElementById("modal-backdrop");
+            const body = document.getElementById("modal-body");
+            const info = document.getElementById("modal-component-info");
+            const error = document.getElementById("modal-error");
+            body.innerHTML = "";
+            error.style.display = "none";
+            error.textContent = "";
+
+            info.textContent = `图号: ${drawingNoRaw} · 模型: ${component.model_type} · R²: ${component.r2_score.toFixed(3)}`;
+
+            const params = component.parameters || [];
+            params.forEach(name => {
+                const row = document.createElement("div");
+                row.className = "param-row";
+
+                const label = document.createElement("div");
+                label.className = "param-name";
+                label.textContent = name;
+
+                const tag = document.createElement("div");
+                tag.className = "param-tag";
+                const mainId = MAIN_PARAM_MAP[name];
+                if (mainId) {
+                    const mainValue = document.getElementById(mainId).value;
+                    tag.textContent = mainValue ? `来自主参数: ${mainValue}` : "来自主参数";
+                } else {
+                    tag.textContent = "额外参数";
+                }
+
+                const input = document.createElement("input");
+                input.type = "number";
+                input.step = "0.0001";
+                input.className = "field-input small-input";
+                input.dataset.paramName = name;
+                const mainId2 = MAIN_PARAM_MAP[name];
+                if (mainId2) {
+                    const mainVal = document.getElementById(mainId2).value;
+                    if (mainVal) {
+                        input.value = mainVal;
+                    }
+                }
+
+                row.appendChild(label);
+                row.appendChild(tag);
+                row.appendChild(input);
+                body.appendChild(row);
+            });
+
+            backdrop.style.display = "flex";
+        }
+
+        async function applyModelResult() {
+            const backdrop = document.getElementById("modal-backdrop");
+            const error = document.getElementById("modal-error");
+            const body = document.getElementById("modal-body");
+            const spinner = document.getElementById("modal-spinner");
+            const applyBtn = document.getElementById("modal-apply");
+            const component = modalState.component;
+            if (!component) {
+                backdrop.style.display = "none";
+                return;
+            }
+
+            const paramInputs = body.querySelectorAll("input[data-param-name]");
+            const params = {};
+            for (const input of paramInputs) {
+                const name = input.dataset.paramName;
+                const value = parseFloat(input.value);
+                if (isNaN(value)) {
+                    error.style.display = "block";
+                    error.textContent = `参数 ${name} 未填写完整`;
+                    return;
+                }
+                params[name] = value;
+            }
+
+            error.style.display = "none";
+            error.textContent = "";
+
+            try {
+                spinner.style.display = "flex";
+                applyBtn.disabled = true;
+                const res = await fetch("/api/calculate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        component_drawing_no: component.component_drawing_no,
+                        parameters: params
+                    })
+                });
+                if (!res.ok) {
+                    const text = await res.text();
+                    showToast("调用模型计算失败: " + text, true);
+                    return;
+                }
+                const result = await res.json();
+                const selector = `.table-row[data-section='${modalState.section}'][data-key='${modalState.rowKey}']`;
+                const row = document.querySelector(selector);
+                if (!row) {
+                    showToast("行已不存在", true);
+                } else {
+                    const unitInput = row.querySelector("input[data-role='unit']");
+                    unitInput.value = result.weight.toFixed(2);
+                    recalculateAll();
+                }
+                backdrop.style.display = "none";
+                showToast("已填入模型计算结果", false);
+            } catch (err) {
+                showToast("模型计算异常", true);
+            } finally {
+                spinner.style.display = "none";
+                applyBtn.disabled = false;
+            }
+        }
+
+        async function loadComponentsIndex() {
+            try {
+                const res = await fetch("/api/components");
+                if (!res.ok) {
+                    return;
+                }
+                componentsIndex = await res.json();
+            } catch (e) {
+            }
+        }
+
+        function showDrawingSuggestions(input) {
+            if (!componentsIndex || !componentsIndex.length) return;
+            const term = input.value.trim().toLowerCase();
+            const box = document.getElementById("drawing-suggestions");
+            if (!term) {
+                box.style.display = "none";
+                activeSuggestionsInput = null;
+                return;
+            }
+            const filtered = componentsIndex.filter(c =>
+                c.component_drawing_no.toLowerCase().includes(term)
+            ).slice(0, 20);
+            if (!filtered.length) {
+                box.style.display = "none";
+                activeSuggestionsInput = null;
+                return;
+            }
+            box.innerHTML = "";
+            filtered.forEach(c => {
+                const item = document.createElement("div");
+                item.className = "suggestion-item";
+                item.textContent = c.component_drawing_no;
+                item.dataset.value = c.component_drawing_no;
+                box.appendChild(item);
+            });
+            const rect = input.getBoundingClientRect();
+            box.style.left = rect.left + "px";
+            box.style.top = rect.bottom + 4 + "px";
+            box.style.width = rect.width + "px";
+            box.style.display = "block";
+            activeSuggestionsInput = input;
+        }
+
+        function hideDrawingSuggestions() {
+            const box = document.getElementById("drawing-suggestions");
+            box.style.display = "none";
+            activeSuggestionsInput = null;
+        }
+
+        function getSWOptions(mfr) {
+            if (!mfr || mfr === "其他" || mfr === "请选择") return null;
+            const swSet = new Set();
+            DOOR_OPERATOR_DATA.filter(d => d.mfr === mfr).forEach(d => swSet.add(d.sw));
+            if (swSet.size === 0) return null;
+            return Array.from(swSet).sort((a, b) => a - b);
+        }
+
+        function updateSWInputType() {
+            const mfrSelect = document.getElementById("door-operator-mfr");
+            const mfr = mfrSelect.value;
+            const oldElement = document.getElementById("param-SW");
+            if (!oldElement) return;
+            
+            const parent = oldElement.parentElement;
+            const currentValue = oldElement.value;
+            
+            const options = getSWOptions(mfr);
+            let newElement;
+            
+            if (options) {
+                // Should be Select
+                if (oldElement.tagName === "SELECT" && oldElement.dataset.mfr === mfr) {
+                    // Already correct select
+                    return;
+                }
+                
+                newElement = document.createElement("select");
+                newElement.className = "field-select required-field";
+                newElement.id = "param-SW";
+                newElement.dataset.mfr = mfr; // Mark it
+                
+                // Add default
+                const defaultOpt = document.createElement("option");
+                defaultOpt.value = "";
+                defaultOpt.textContent = "请选择";
+                newElement.appendChild(defaultOpt);
+                
+                let matched = false;
+                options.forEach(sw => {
+                    const opt = document.createElement("option");
+                    opt.value = sw;
+                    opt.textContent = sw;
+                    if (parseFloat(currentValue) === sw) {
+                        opt.selected = true;
+                        matched = true;
+                    }
+                    newElement.appendChild(opt);
+                });
+                
+                // If only one option, auto select it? Maybe better not to force it unless new calculation requires it.
+                // But for user convenience, if only one option, select it.
+                if (options.length === 1 && !matched) {
+                    newElement.value = options[0];
+                }
+                
+            } else {
+                // Should be Input
+                if (oldElement.tagName === "INPUT") return;
+                
+                newElement = document.createElement("input");
+                newElement.type = "number";
+                newElement.step = "1";
+                newElement.placeholder = "mm";
+                newElement.className = "field-input required-field";
+                newElement.id = "param-SW";
+                newElement.value = currentValue;
+            }
+            
+            // Replace
+            parent.replaceChild(newElement, oldElement);
+            
+            // Re-attach listeners
+            newElement.addEventListener("change", recalculateAll);
+            newElement.addEventListener("input", recalculateAll);
+            
+            // Trigger recalc if value changed implicitly (e.g. switched to select with default)
+            // recalculateAll(); 
+        }
+
+        function setupCoreEvents() {
+            document.getElementById("machine-room-type").addEventListener("change", function () {
+                currentMachineRoom = this.value;
+                updateFactorFromRule();
+                buildTables();
+            });
+
+            document.getElementById("car-type").addEventListener("change", function () {
+                // When car type changes, rebuild tables because config might change (e.g. PMCCLC)
+                buildTables();
+                recalculateAll();
+            });
+
+            document.getElementById("capacity").addEventListener("input", function () {
+                updateFactorFromRule();
+                recalculateAll();
+            });
+            
+            // Add JJ listener
+            document.getElementById("param-JJ").addEventListener("input", function () {
+                recalculateAll();
+            });
+            
+            document.getElementById("door-operator-mfr").addEventListener("change", function() {
+                updateSWInputType();
+                recalculateAll();
+            });
+            document.getElementById("opening-type").addEventListener("change", recalculateAll);
+            
+            // Initial binding for param-SW is handled inside updateSWInputType or below if it exists
+            // But since we might replace it, we should ensure the initial one has listener
+            const initialSW = document.getElementById("param-SW");
+            if (initialSW) initialSW.addEventListener("input", recalculateAll);
+
+            document.getElementById("compensation-factor").addEventListener("input", function () {
+                updateFactorDisplay();
+                recalculateAll();
+            });
+
+            document.getElementById("export-pdf").addEventListener("click", function () {
+                window.print();
+            });
+            
+            // Toggle Through Car
+            const toggleBtn = document.getElementById("through-car-toggle");
+            const toggleInput = document.getElementById("through-car");
+            toggleBtn.addEventListener("click", function() {
+                if (toggleInput.value === "否") {
+                    toggleInput.value = "是";
+                    toggleBtn.textContent = "是";
+                    toggleBtn.style.color = "#a7f3d0";
+                    toggleBtn.style.borderColor = "rgba(52,211,153,0.8)";
+                } else {
+                    toggleInput.value = "否";
+                    toggleBtn.textContent = "否";
+                    toggleBtn.style.color = "";
+                    toggleBtn.style.borderColor = "";
+                }
+                // Rebuild tables to update default quantities (1 vs 2)
+                buildTables();
+                recalculateAll();
+            });
+
+            // Archive Data
+            // Archive Data
+            document.getElementById("archive-btn").addEventListener("click", async function() {
+                const requiredFields = document.querySelectorAll(".required-field");
+                let missing = [];
+                requiredFields.forEach(field => {
+                    if (!field.value) {
+                        const label = field.parentElement.querySelector(".field-label").textContent.replace("*", "").trim();
+                        missing.push(label);
+                        field.style.borderColor = "#ef4444";
+                    } else {
+                        field.style.borderColor = "";
+                    }
+                });
+
+                if (missing.length > 0) {
+                    showToast("请填写必填项: " + missing.join(", "), true);
+                    return;
+                }
+
+                // 2. Validate Weight Rule
+                const capacity = parseNumber(document.getElementById("capacity").value);
+                const totalWeight = parseNumber(document.getElementById("total-car-weight").textContent);
+                
+                if (totalWeight <= capacity * 0.6) {
+                    showToast(`校验失败: 轿厢总重量 (${totalWeight}) 必须大于 载重*0.6 (${(capacity * 0.6).toFixed(2)})`, true);
+                    return;
+                }
+
+                // 3. Collect Data
+                const data = {
+                    projectParams: {
+                        machineRoomType: document.getElementById("machine-room-type").value,
+                        projectNo: document.getElementById("project-no").value,
+                        elevatorModel: document.getElementById("elevator-model").value,
+                        capacity: capacity,
+                        speed: parseNumber(document.getElementById("speed").value),
+                        CA: parseNumber(document.getElementById("param-CA").value),
+                        CB: parseNumber(document.getElementById("param-CB").value),
+                        CH: parseNumber(document.getElementById("param-CH").value),
+                        HH: parseNumber(document.getElementById("param-HH").value),
+                        JJ: parseNumber(document.getElementById("param-JJ").value),
+                        openingType: document.getElementById("opening-type").value,
+                        doorOperatorMfr: document.getElementById("door-operator-mfr").value,
+                        throughCar: document.getElementById("through-car").value
+                    },
+                    wallParams: {
+                        carType: document.getElementById("car-type").value,
+                        carWallThickness: parseNumber(document.getElementById("car-wall-thickness").value),
+                        floorThickness: parseNumber(document.getElementById("floor-thickness").value),
+                        SW: parseNumber(document.getElementById("param-SW").value),
+                        EA: parseNumber(document.getElementById("param-EA").value)
+                    },
+                    totalWeight: totalWeight,
+                    compensationFactor: parseNumber(document.getElementById("compensation-factor").value),
+                    timestamp: new Date().toISOString()
+                };
+
+                // 4. Send to Server
+                try {
+                    const btn = document.getElementById("archive-btn");
+                    const originalText = btn.textContent;
+                    btn.textContent = "归档中...";
+                    btn.disabled = true;
+
+                    const res = await fetch("/api/archive", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (res.ok) {
+                        showToast("归档成功！", false);
+                    } else {
+                        showToast("归档失败", true);
+                    }
+
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                } catch (e) {
+                    showToast("请求失败: " + e.message, true);
+                    document.getElementById("archive-btn").disabled = false;
+                    document.getElementById("archive-btn").textContent = "轿厢重量归档";
+                }
+            });
+
+            const backdrop = document.getElementById("modal-backdrop");
+            document.getElementById("modal-close").addEventListener("click", function () {
+                backdrop.style.display = "none";
+            });
+            document.getElementById("modal-cancel").addEventListener("click", function () {
+                backdrop.style.display = "none";
+            });
+            document.getElementById("modal-apply").addEventListener("click", function () {
+                applyModelResult();
+            });
+            backdrop.addEventListener("click", function (event) {
+                if (event.target === backdrop) {
+                    backdrop.style.display = "none";
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadComponentsIndex();
+            setupCoreEvents();
+            buildTables();
+            updateSWInputType(); // Initialize SW field type based on default mfr (empty)
+            recalculateAll();
+            document.getElementById("drawing-suggestions").addEventListener("mousedown", function (event) {
+                const item = event.target.closest(".suggestion-item");
+                if (!item || !activeSuggestionsInput) return;
+                activeSuggestionsInput.value = item.dataset.value;
+                hideDrawingSuggestions();
+                recalculateAll();
+            });
+            document.addEventListener("click", function (event) {
+                const box = document.getElementById("drawing-suggestions");
+                if (box.style.display === "none") return;
+                if (event.target.dataset && event.target.dataset.role === "drawing") return;
+                if (event.target.closest && event.target.closest("#drawing-suggestions")) return;
+                hideDrawingSuggestions();
+            });
+        });
+    </script>
+</body>
+</html>
