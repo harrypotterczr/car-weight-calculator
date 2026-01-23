@@ -3,12 +3,31 @@ const fs = require('fs');
 const path = require('path');
 const { PythonShell } = require('python-shell');
 const { spawn } = require('child_process');
+let puppeteer;
+function getChromePath() {
+    const candidates = [
+        process.env.CHROME_PATH,
+        'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+        'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+        'C:\\\\Program Files\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe',
+        'C:\\\\Program Files (x86)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe',
+        'C:\\\\Program Files\\\\BraveSoftware\\\\Brave-Browser\\\\Application\\\\brave.exe',
+        'C:\\\\Program Files (x86)\\\\BraveSoftware\\\\Brave-Browser\\\\Application\\\\brave.exe'
+    ].filter(Boolean);
+    for (const p of candidates) {
+        try {
+            if (p && fs.existsSync(p)) return p;
+        } catch (_) {}
+    }
+    return null;
+}
 
 const app = express();
-const PORT = 3000;
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 
 // 中间件
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(express.static('.'));
 
 app.get('/', (req, res) => {
@@ -256,6 +275,62 @@ function calculateUsingRandomForest(component_drawing_no, parameters) {
     });
 }
 
+// 服务端生成PDF
+app.post('/api/export-pdf', async (req, res) => {
+    try {
+        const { html, projectNo } = req.body || {};
+        const safeProjectNo = (projectNo && String(projectNo).trim()) ? String(projectNo).trim() : '未命名项目';
+        if (!html || typeof html !== 'string' || html.length < 10) {
+            return res.status(400).json({ error: 'Invalid HTML content' });
+        }
+        if (!puppeteer) {
+            try {
+                puppeteer = require('puppeteer-core');
+            } catch (e) {
+                puppeteer = require('puppeteer'); // 回退
+            }
+        }
+        const executablePath = getChromePath();
+        const launchOptions = executablePath ? { executablePath } : { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+        const browser = await puppeteer.launch(launchOptions);
+        const page = await browser.newPage();
+        await page.setContent(html, { waitUntil: 'networkidle0' });
+        await page.emulateMediaType('print');
+        const pdfUint8Array = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+            preferCSSPageSize: true
+        });
+        await browser.close();
+        
+        // 确保转换为Buffer (Puppeteer新版本可能返回Uint8Array)
+        const pdfBuffer = Buffer.from(pdfUint8Array);
+
+        // 验证生成的PDF (宽松模式：只要前1000字节包含%PDF即可)
+        const pdfHeaderIndex = pdfBuffer.indexOf('%PDF');
+        if (pdfBuffer.length < 100 || pdfHeaderIndex === -1 || pdfHeaderIndex > 1000) {
+             throw new Error(`Invalid PDF generated. Size: ${pdfBuffer.length}, Header index: ${pdfHeaderIndex}`);
+        }
+
+        // 强制二进制响应并禁用缓存
+        // 注意：Content-Disposition 中文件名必须编码，避免中文导致 Invalid character in header content 错误
+        const filename = encodeURIComponent(safeProjectNo + '轿厢重量.pdf');
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Length', pdfBuffer.length);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
+        // 直接写入Buffer并结束响应，避免Express自动处理
+        res.end(pdfBuffer);
+    } catch (error) {
+        console.error('Export PDF error:', error);
+        res.status(500).json({ error: 'Failed to export PDF: ' + error.message });
+    }
+});
+
 // 归档轿厢重量数据的API
 app.post('/api/archive', (req, res) => {
     try {
@@ -296,7 +371,20 @@ app.post('/api/archive', (req, res) => {
     }
 });
 
-// 启动服务器
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// 启动服务器（端口占用自动回退）
+function startServer(port, attempts = 0) {
+    const server = app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${port}`);
+    });
+    server.on('error', (err) => {
+        if (err && err.code === 'EADDRINUSE' && attempts < 10) {
+            const nextPort = port + 1;
+            console.warn(`Port ${port} in use, trying ${nextPort}...`);
+            startServer(nextPort, attempts + 1);
+        } else {
+            console.error('Failed to start server:', err);
+            process.exit(1);
+        }
+    });
+}
+startServer(DEFAULT_PORT);

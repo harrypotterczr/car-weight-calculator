@@ -114039,5 +114039,255 @@
     "totalWeight": 1500,
     "compensationFactor": 0.06,
     "timestamp": "2026-01-21T09:22:47.134Z"
+  },
+  {
+    "projectParams": {
+      "machineRoomType": "有机房",
+      "projectNo": "QE26029 L01",
+      "elevatorModel": "NMRO-N-1600-150",
+      "capacity": 1600,
+      "speed": 1.5,
+      "CA": 1450,
+      "CB": 2400,
+      "CH": 2500,
+      "HH": 2100,
+      "JJ": 1200,
+      "openingType": "旁开",
+      "doorOperatorMfr": "易升",
+      "throughCar": "是"
+    },
+    "wallParams": {
+      "carType": "PMCCLC标准轿厢",
+      "carWallThickness": 1.2,
+      "floorThickness": 3,
+      "SW": 90,
+      "EA": 170
+    },
+    "weights": {
+      "basic": {
+        "entire_car": {
+          "name": "整个轿厢",
+          "drawing": "D0800369",
+          "unit": 642,
+          "qty": 1,
+          "total": 642
+        },
+        "door_operator": {
+          "name": "轿门机",
+          "drawing": "",
+          "unit": 106.22,
+          "qty": 2,
+          "total": 212.44
+        },
+        "cop": {
+          "name": "COP",
+          "drawing": "",
+          "unit": 15,
+          "qty": 2,
+          "total": 30
+        },
+        "car_frame_assy": {
+          "name": "轿厢架含反绳轮",
+          "drawing": "V0740100 M0750065_G01",
+          "unit": 315,
+          "qty": 1,
+          "total": 315
+        },
+        "car_bottom_bracket": {
+          "name": "轿底托架",
+          "drawing": "V0730074",
+          "unit": 63,
+          "qty": 1,
+          "total": 63
+        },
+        "safety_gear_device": {
+          "name": "安全钳装置含钳口",
+          "drawing": "V0710251_MIR",
+          "unit": 125,
+          "qty": 1,
+          "total": 125
+        },
+        "tie_rod": {
+          "name": "拉杆挂钩",
+          "drawing": "V0740111_G02",
+          "unit": 10,
+          "qty": 1,
+          "total": 10
+        },
+        "accessories": {
+          "name": "附件",
+          "drawing": "",
+          "unit": 20,
+          "qty": 1,
+          "total": 20
+        },
+        "guide_shoe": {
+          "name": "轿厢导靴",
+          "drawing": "",
+          "unit": 2.2,
+          "qty": 4,
+          "total": 8.8
+        },
+        "top_box": {
+          "name": "轿顶盒",
+          "drawing": "",
+          "unit": 15,
+          "qty": 1,
+          "total": 15
+        }
+      },
+      "special": {
+        "floor": {
+          "name": "地板",
+          "spec": "PVC",
+          "unit": 14.62,
+          "qty": 1,
+          "total": 14.62
+        },
+        "handrail": {
+          "name": "扶手",
+          "spec": "",
+          "unit": 21,
+          "qty": 1,
+          "total": 21
+        },
+        "other": {
+          "name": "其他",
+          "spec": "",
+          "unit": 0,
+          "qty": 1,
+          "total": 0
+        }
+      },
+      "summary": []
+    },
+    "totalWeight": 1570,
+    "compensationFactor": 0.06,
+    "timestamp": "2026-01-23T09:29:30.359Z"
+  },
+  {
+    "projectParams": {
+      "machineRoomType": "有机房",
+      "projectNo": "QE26029 L01",
+      "elevatorModel": "NMRO-N-1600-150",
+      "capacity": 1600,
+      "speed": 1.5,
+      "CA": 1450,
+      "CB": 2400,
+      "CH": 2500,
+      "HH": 2100,
+      "JJ": 1200,
+      "openingType": "旁开",
+      "doorOperatorMfr": "易升",
+      "throughCar": "否"
+    },
+    "wallParams": {
+      "carType": "PMCCLC标准轿厢",
+      "carWallThickness": 1.2,
+      "floorThickness": 3,
+      "SW": 90,
+      "EA": 170
+    },
+    "weights": {
+      "basic": {
+        "entire_car": {
+          "name": "整个轿厢",
+          "drawing": "",
+          "unit": 651,
+          "qty": 1,
+          "total": 651
+        },
+        "door_operator": {
+          "name": "轿门机",
+          "drawing": "",
+          "unit": 106.22,
+          "qty": 1,
+          "total": 106.22
+        },
+        "cop": {
+          "name": "COP",
+          "drawing": "",
+          "unit": 15,
+          "qty": 1,
+          "total": 15
+        },
+        "car_frame_assy": {
+          "name": "轿厢架含反绳轮",
+          "drawing": "V0740100 M0750065",
+          "unit": 315,
+          "qty": 1,
+          "total": 315
+        },
+        "car_bottom_bracket": {
+          "name": "轿底托架",
+          "drawing": "V0730074",
+          "unit": 61.01,
+          "qty": 1,
+          "total": 61.01
+        },
+        "safety_gear_device": {
+          "name": "安全钳装置含钳口",
+          "drawing": "V0710251",
+          "unit": 125,
+          "qty": 1,
+          "total": 125
+        },
+        "tie_rod": {
+          "name": "拉杆挂钩",
+          "drawing": "",
+          "unit": 10,
+          "qty": 1,
+          "total": 10
+        },
+        "accessories": {
+          "name": "附件",
+          "drawing": "",
+          "unit": 20,
+          "qty": 1,
+          "total": 20
+        },
+        "guide_shoe": {
+          "name": "轿厢导靴",
+          "drawing": "",
+          "unit": 2.2,
+          "qty": 4,
+          "total": 8.8
+        },
+        "top_box": {
+          "name": "轿顶盒",
+          "drawing": "",
+          "unit": 15,
+          "qty": 1,
+          "total": 15
+        }
+      },
+      "special": {
+        "floor": {
+          "name": "地板",
+          "spec": "PVC",
+          "unit": 14.62,
+          "qty": 1,
+          "total": 14.62
+        },
+        "handrail": {
+          "name": "扶手",
+          "spec": "",
+          "unit": 28,
+          "qty": 1,
+          "total": 28
+        },
+        "other": {
+          "name": "其他",
+          "spec": "",
+          "unit": 0,
+          "qty": 1,
+          "total": 0
+        }
+      },
+      "summary": []
+    },
+    "totalWeight": 1450,
+    "compensationFactor": 0.06,
+    "timestamp": "2026-01-23T09:33:51.199Z"
   }
 ]

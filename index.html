@@ -670,17 +670,29 @@
             opacity: 1;
         }
         @media print {
+            :root {
+                color-scheme: light !important;
+            }
+            html {
+                background-color: #ffffff !important;
+                background-image: none !important;
+                height: 100%;
+                width: 100%;
+            }
             .table-footer-add, .delete-btn {
                 display: none !important;
             }
 
             body {
-                background: white !important;
+                background-color: #ffffff !important;
+                background-image: none !important;
                 color: black !important;
-                padding: 0;
-                margin: 0;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .bg-grid,
             .top-bar,
@@ -792,6 +804,8 @@
                 padding: 0;
                 height: auto;
                 width: 100%;
+                border-radius: 0 !important;
+                overflow: visible !important;
             }
             /* Hide placeholder texts when printing */
             input::placeholder {
@@ -1134,6 +1148,102 @@
     <div id="drawing-suggestions" class="suggestions" style="display:none;"></div>
 
     <script>
+        // 生成可打印HTML：将当前输入值写回属性，保证服务端渲染一致
+        function buildPrintableHTML() {
+            const doc = document.cloneNode(true);
+            // 同步所有表单的当前值到属性
+            const inputs = doc.querySelectorAll('input, select, textarea');
+            inputs.forEach(el => {
+                const original = document.querySelector(getElementSelector(el));
+                if (!original) return;
+                if (el.tagName.toLowerCase() === 'select') {
+                    const val = original.value;
+                    el.querySelectorAll('option').forEach(opt => {
+                        if (opt.value === val) {
+                            opt.setAttribute('selected', 'selected');
+                        } else {
+                            opt.removeAttribute('selected');
+                        }
+                    });
+                } else if (el.type === 'checkbox' || el.type === 'radio') {
+                    if (original.checked) {
+                        el.setAttribute('checked', 'checked');
+                    } else {
+                        el.removeAttribute('checked');
+                    }
+                } else {
+                    el.setAttribute('value', original.value ?? '');
+                }
+            });
+            // 打印时间戳同步
+            doc.querySelectorAll('.print-date').forEach(el => {
+                el.textContent = document.querySelector('.print-date')?.textContent || '';
+            });
+            // 设为打印媒体，避免客户端差异
+            return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+        }
+
+        // 简易选择器生成（优先用id）
+        function getElementSelector(el) {
+            if (el.id) return '#' + el.id;
+            // 退化匹配：按相同name和序号
+            const name = el.getAttribute('name');
+            if (name) {
+                const all = document.querySelectorAll(`[name="${CSS.escape(name)}"]`);
+                const index = Array.from(all).indexOf(el);
+                return `[name="${CSS.escape(name)}"]` + (index >= 0 ? `:nth-of-type(${index + 1})` : '');
+            }
+            // 最后退化：同标签和序号
+            const tag = el.tagName.toLowerCase();
+            const allTag = document.querySelectorAll(tag);
+            const idx = Array.from(allTag).indexOf(el);
+            return `${tag}:nth-of-type(${idx + 1})`;
+        }
+
+        async function exportPDFServer() {
+            try {
+                const projectNo = document.getElementById('project-no')?.value?.trim() || '未命名项目';
+                const html = buildPrintableHTML();
+                const resp = await fetch('/api/export-pdf', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/pdf'
+                    },
+                    body: JSON.stringify({ html, projectNo }),
+                    cache: 'no-store'
+                });
+                if (!resp.ok) {
+                    const text = await resp.text();
+                    throw new Error(text || '导出失败');
+                }
+                const blob = await resp.blob();
+                console.log('PDF Blob type:', blob.type, 'size:', blob.size);
+                
+                // 只要大小正常，就尝试作为PDF下载，忽略Content-Type可能的异常
+                if (blob.size < 100) {
+                    let text;
+                    try { text = await blob.text(); } catch (e) { text = '无法读取响应内容'; }
+                    throw new Error(`服务端返回内容过小（非有效PDF）: ${text.slice(0, 100)}`);
+                }
+
+                const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectNo}轿厢重量.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showToast('PDF 已生成并开始下载');
+            } catch (e) {
+                showToast('导出失败：' + e.message, true);
+            }
+        }
+
+        
+
         // Set print date
         function updatePrintDate() {
             const now = new Date();
@@ -2837,7 +2947,7 @@
             });
 
             document.getElementById("export-pdf").addEventListener("click", function () {
-                window.print();
+                exportPDFServer();
             });
             
             // Toggle Through Car

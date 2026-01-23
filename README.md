@@ -25,19 +25,23 @@
   - 对于复杂组件，集成 Python 随机森林模型 (`.pkl`) 进行预测。
 
 - **导出与归档**:
-  - 生成专业的 PDF 计算报告（优化打印样式，去除背景杂色）。
-  - 支持将计算数据归档保存为 JSON 格式。
+  - **服务端 PDF 生成**: 点击“导出 PDF”按钮，服务端自动生成高清 PDF 报告。
+    - 自动以“项目号+轿厢重量”命名文件。
+    - 完美适配打印样式，自动去除深色背景，确保打印输出清晰整洁。
+    - 解决浏览器原生打印的输入框截断和样式兼容性问题。
+  - **数据归档**: 支持将计算数据归档保存为 JSON 格式。
 
 ## 技术栈
 
 - **前端**: HTML5, CSS3, JavaScript (原生)
-- **后端**: Node.js, Express.js
+- **后端**: Node.js, Express.js, Puppeteer-core (PDF 生成)
 - **机器学习**: Python (scikit-learn), Random Forest Regressor
 
 ## 环境要求
 
 - **Node.js**: v14.0.0 或更高版本
 - **Python**: 3.8 或更高版本
+- **Chrome 浏览器**: 用于 PDF 生成（服务端自动调用本机 Chrome/Edge）
 - **Python 依赖库**:
   ```bash
   pip install scikit-learn pandas numpy joblib
@@ -56,11 +60,17 @@
    npm install
    ```
 
-3. 确保已安装 Python 及相关库（见环境要求）。
+3. 确保已安装 Python 及相关库。
 
 ## 使用说明
 
-1. 启动服务器:
+1. **一键启动 (推荐)**:
+   双击运行 `start_car_weight_calculator.bat` 脚本。
+   - 自动关闭旧的服务进程。
+   - 后台静默启动服务器（无黑框干扰）。
+   - 自动打开默认浏览器访问应用。
+
+2. 手动启动:
    ```bash
    npm start
    ```
