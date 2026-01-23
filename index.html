@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>轿厢重量计算器</title>
+    <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
             box-sizing: border-box;
@@ -1607,8 +1608,7 @@
                 { key: "entire_car", name: "整个轿厢" },
                 { key: "door_operator", name: "轿门机" },
                 { key: "cop", name: "COP" },
-                { key: "car_frame_assy", name: "轿厢架装配" },
-                { key: "rope_pulley", name: "含反绳轮装置" },
+                { key: "car_frame_assy", name: "轿厢架含反绳轮" },
                 { key: "car_bottom_bracket", name: "轿底托架" },
                 { key: "safety_gear_device", name: "安全钳装置含钳口" },
                 { key: "tie_rod", name: "拉杆挂钩" },
@@ -2170,6 +2170,14 @@
                 }
             });
 
+            // Show suggestions on focus
+            container.addEventListener("focusin", function (event) {
+                const target = event.target;
+                if (target.dataset && target.dataset.role === "drawing") {
+                    showDrawingSuggestions(target);
+                }
+            });
+
             const basicBody = document.getElementById("basic-body");
             const specialBody = document.getElementById("special-body");
 
@@ -2460,6 +2468,16 @@
 
         // Global variable to store component formulas
         let formulasData = [];
+        const blockNumbersMap = {
+            "门楣": ["321", "323", "324"],
+            "前壁/侧柱": ["321", "324"],
+            "轿厢底": ["121"],
+            "轿顶基板": ["320", "321"],
+            "轿厢架": ["070", "074","120", "121"],
+            "安全钳": ["071", "120", "125"],
+            "轿底托架": ["073", "077"],
+            "滑轮组": ["071", "073", "075", "110", "124"]
+        };
 
         async function loadComponentsIndex() {
             try {
@@ -2626,14 +2644,52 @@
             if (!componentsIndex || !componentsIndex.length) return;
             const term = input.value.trim().toLowerCase();
             const box = document.getElementById("drawing-suggestions");
-            if (!term) {
+
+            // Identify Component Name
+            const row = input.closest(".table-row");
+            let componentName = "";
+            if (row) {
+                const labelDiv = row.querySelector(".cell-label");
+                if (labelDiv) {
+                    componentName = labelDiv.textContent.trim();
+                }
+            }
+
+            // Determine allowed block numbers
+            let allowedBlocks = null;
+            if (componentName && blockNumbersMap) {
+                for (const key in blockNumbersMap) {
+                    if (componentName.includes(key)) {
+                        allowedBlocks = blockNumbersMap[key];
+                        break;
+                    }
+                }
+            }
+
+            if (!term && !allowedBlocks) {
                 box.style.display = "none";
                 activeSuggestionsInput = null;
                 return;
             }
-            const filtered = componentsIndex.filter(c =>
-                c.component_drawing_no.toLowerCase().includes(term)
-            ).slice(0, 20);
+
+            const filtered = componentsIndex.filter(c => {
+                const drawingNo = c.component_drawing_no;
+                const lowerNo = drawingNo.toLowerCase();
+
+                // 1. Block Number Filter
+                if (allowedBlocks && allowedBlocks.length > 0) {
+                    const hasBlock = allowedBlocks.some(block => lowerNo.includes(block.toLowerCase()));
+                    if (!hasBlock) return false;
+                }
+
+                // 2. Term Filter
+                if (term && !lowerNo.includes(term)) {
+                    return false;
+                }
+                
+                return true;
+            }).slice(0, 20);
+
             if (!filtered.length) {
                 box.style.display = "none";
                 activeSuggestionsInput = null;

@@ -1,1432 +1,15 @@
 [
   {
-    "component_drawing_no": "K120B601",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.102890*CA + -0.314003*CH + -0.046243*载重 + 1552.387283",
-    "data_points": 4,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B667",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.009281*CA + -0.045059*载重 + 332.161265",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B660",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CH + -0.814035*载重 + 1633.947368",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B682",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.157895*载重 + 271.842105",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6013",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.080000*CA + -0.032000*CH + 0.024000*载重 + 392.000000",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B675",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.064220*CA + -0.019266*载重 + 628.027523",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8509",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + -0.000000*CB + 0.000138*CA^2 + -0.000048*CA CB + 0.000038*CB^2 + 432.939861",
-    "data_points": 4,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B813",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + -0.000000*CB + 0.000053*CA^2 + -0.000041*CA CB + 0.000009*CB^2 + 519.370068",
-    "data_points": 4,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B817",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000001*CH + 0.000001*载重 + -0.000898*CA^2 + -0.001016*CA CH + 0.002069*CA 载重 + 0.000987*CH^2 + -0.000355*CH 载重 + -0.000609*载重^2 + -546.622118",
-    "data_points": 6,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B629",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.012513*CA + -0.006257*CH + -0.010073*载重 + 528.865347",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K124B858",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.003500*CA + 287.250000",
-    "data_points": 2,
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B845",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + 0.000001*载重 + -0.000190*CA^2 + 0.000478*CA 载重 + -0.000499*载重^2 + 721.387302",
-    "data_points": 4,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B462",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.003863*CA + 0.028970*CH + -0.003863*载重 + 558.487124",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B641",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000007*CA + -0.000008*载重 + -0.000836*CA^2 + 0.002233*CA 载重 + -0.001324*载重^2 + 135.511215",
-    "data_points": 4,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B9010",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.030580*CA + -0.193854*CB + -0.000029*CA^2 + 0.000113*CA CB + 0.000026*CB^2 + 266.874122",
-    "data_points": 5,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B809",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000001*CA + -0.000001*CH + 0.000001*载重 + 0.000005*CA^2 + -0.000127*CA CH + -0.000402*CA 载重 + -0.000229*CH^2 + 0.001265*CH 载重 + -0.001037*载重^2 + 507.366288",
-    "data_points": 6,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B850",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.017547*CA + -0.236146*载重 + -0.000700*CA^2 + 0.002091*CA 载重 + -0.001410*载重^2 + 202.927744",
-    "data_points": 6,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8003",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + 0.000000*CH + -0.000000*载重 + 0.000160*CA^2 + -0.000262*CA CH + -0.000077*CA 载重 + 0.000142*CH^2 + -0.000113*CH 载重 + 0.000365*载重^2 + -84.908926",
-    "data_points": 6,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B840",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000188*CA + -0.000234*CH + -0.002679*载重 + 531.038927",
-    "data_points": 2,
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "L121B801",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*CH + -0.000000*载重 + 0.000112*CA^2 + -0.000091*CA CH + -0.000108*CA 载重 + 0.000031*CH^2 + 0.000052*CH 载重 + 0.000025*载重^2 + 36.216456",
-    "data_points": 7,
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B933",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 107.580000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K131B822",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000001*CA + -0.000001*CB + 0.001750*CA^2 + -0.001840*CA CB + 0.000448*CB^2 + 1379.331191",
-    "data_points": 4,
-    "component_name": "门机安装支架",
-    "parameters": [
-      "CA",
-      "CB",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B991",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 200.000000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710092\nM9030001\nV0710062",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*载重 + 0.000019*CA^2 + -0.000031*CA 载重 + 0.000014*载重^2 + 72.449489",
-    "data_points": 4,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K324B668",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CH + 16.000000",
-    "data_points": 2,
-    "component_name": "前壁/侧柱",
-    "parameters": [
-      "CA",
-      "CH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B650",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + -0.000000*CH + 0.000000*载重 + -0.000488*CA^2 + 0.000261*CA CH + 0.000727*CA 载重 + -0.000335*CH^2 + 0.000320*CH 载重 + -0.000388*载重^2 + 927.722767",
-    "data_points": 5,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B690",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.042529*CA + 0.099062*载重 + 0.000164*CA^2 + -0.000306*CA 载重 + 0.000141*载重^2 + 119.574046",
-    "data_points": 5,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6183",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.070261*CA + 0.054783*CB + -48.095652",
-    "data_points": 3,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B697",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.018036*CA + -0.000471*CB + 102.013658",
-    "data_points": 4,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710052\nM0770005\nM0710057",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.018358*CA + 0.039233*载重 + 151.577627",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6073\nK120B6104",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.136471*CA + -0.034118*CH + 0.000000*载重 + 233.941176",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B617",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + -0.000000*CH + -0.000000*载重 + -0.000177*CA^2 + 0.000080*CA CH + 0.000305*CA 载重 + -0.000121*CH^2 + 0.000199*CH 载重 + -0.000188*载重^2 + 302.103430",
-    "data_points": 7,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8719",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 1.076039*CA + 2.147580*CB + 0.001260*CA^2 + -0.002500*CA CB + 0.000239*CB^2 + -2220.289013",
-    "data_points": 6,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B8095",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*CB + 0.000112*CA^2 + -0.000138*CA CB + 0.000020*CB^2 + 125.552814",
-    "data_points": 4,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0740029_G02\nV0740008\nM0770017",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.056911*CA + -0.008130*CH + 0.047154*载重 + -10.626016",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6159",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.125000*CA + 0.125000*CB + -302.500000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B6523",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.282974*CA + -0.488131*CB + 2997.130954",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6087",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.018865*CA + -0.032542*CB + 366.475397",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6032",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 4.040741*CA + 0.098148*CH + 0.652444*载重 + -12311.666667",
-    "data_points": 4,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B6025",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + 0.000000*载重 + -0.000024*CA^2 + -0.000014*CA 载重 + 0.000001*载重^2 + 1027.640858",
-    "data_points": 4,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K321B847",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CH + 15.000000",
-    "data_points": 2,
-    "component_name": "前壁/侧柱",
-    "parameters": [
-      "CA",
-      "CH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B615",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.027586*CA + 0.068966*载重 + 137.931034",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6269",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.077778*CA + 0.070175*CB + -103.479532",
-    "data_points": 3,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6209",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.340000*CA + 0.320000*CB + 282.000000",
-    "data_points": 3,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B6080",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.272683*CA + -0.019512*载重 + -258.195122",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K321B6136",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 12.580000",
-    "data_points": 2,
-    "component_name": "门机安装支架",
-    "parameters": [
-      "CA",
-      "CB",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "S321B838",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.133333*CA + -1.360000*CH + 3358.333333",
-    "data_points": 4,
-    "component_name": "前壁/侧柱",
-    "parameters": [
-      "CA",
-      "CH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8534",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*CB + 0.000687*CA^2 + -0.002425*CA CB + 0.000772*CB^2 + 5233.390504",
-    "data_points": 4,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K124B846",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.160000*CA + -70.000000",
-    "data_points": 2,
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B847",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.004218*CA + -0.002742*载重 + 156.059754",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6069\nK120B6104",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000007*CA + 0.000007*CH + 0.000000*载重 + -0.000018*CA^2 + 0.000717*CA CH + -0.001777*CA 载重 + -0.000351*CH^2 + 0.000646*CH 载重 + 0.000566*载重^2 + 319.515233",
-    "data_points": 6,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "S321B830",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.040321*CA + 0.011021*CB + 1.019147",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8677",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 1.287241*CA + -1.426065*CB + -0.000393*CA^2 + 0.000334*CA CB + 0.000113*CB^2 + 772.077180",
-    "data_points": 5,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B7066",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*CB + 0.000691*CA^2 + -0.001122*CA CB + 0.000318*CB^2 + 428.434408",
-    "data_points": 4,
-    "component_name": "背包架底部托架",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B751",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + -0.000000*CB + 0.000001*CA^2 + 0.000005*CA CB + -0.000005*CB^2 + 161.812852",
-    "data_points": 4,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B7047",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.223397*CA + 0.389952*CB + -130.846890",
-    "data_points": 3,
-    "component_name": "背包架底部托架",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0740030\nV0740008",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.008720*CA + 0.000000*CH + 0.000000*载重 + 77.226000",
-    "data_points": 2,
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "M1100019_G03\nM0750006",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.046943*CA + 0.000018*CA^2 + 90.202857",
-    "data_points": 3,
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710105\nM9030020\nV0710149",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.031000*CA + 0.000000*载重 + 71.530000",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6191",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.005517*CA + -0.006207*CB + 284.137931",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0740002\nV0740008",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000400*CH + 0.000013*载重 + 73.989260",
-    "data_points": 2,
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0730024",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*CB + 0.000051*CA^2 + -0.000104*CA CB + 0.000055*CB^2 + 14.868389",
-    "data_points": 4,
-    "component_name": "托架",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710151\nV0710167",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000001*CA + -0.000001*载重 + 0.000133*CA^2 + -0.000315*CA 载重 + 0.000200*载重^2 + 73.935214",
-    "data_points": 4,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "L321B652",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.037324*CA + 0.005332*CH + -43.451800",
-    "data_points": 2,
-    "component_name": "前壁/侧柱",
-    "parameters": [
-      "CA",
-      "CH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K131B608",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.046154*CA + -0.030769*CB + 87.692308",
-    "data_points": 2,
-    "component_name": "门机安装支架",
-    "parameters": [
-      "CA",
-      "CB",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6122\nK120B6104",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.030000*CA + 0.280000*CH + -0.000000*载重 + -361.000000",
-    "data_points": 4,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6197",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.037420*CA + -0.002274*CB + 54.940252",
-    "data_points": 3,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8728",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.073306*CA + -0.042355*CB + 183.415402",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K321B701",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.001351*CA + -0.001892*CB + 89.196216",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B017",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + 0.050000*载重 + -5.000000",
-    "data_points": 4,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0740029_G02",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.004238*CA + -0.000771*CH + 0.004469*载重 + 63.608106",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B7545",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.001991*CA + -0.001810*CB + 175.307692",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B725",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.004762*CA + 0.016190*CH + -0.019048*载重 + 392.095238",
-    "data_points": 3,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0730024_G01",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.001590*CA + -0.002841*CB + 25.255290",
-    "data_points": 2,
-    "component_name": "轿底托架",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K324B704",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CH + 15.000000",
-    "data_points": 2,
-    "component_name": "门楣",
-    "parameters": [
-      "CH",
-      "HH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B7578",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 124.000000",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B729",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.250000*CA + -0.250000*CB + 725.000000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710180",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.023077*CA + -0.015385*载重 + 187.692308",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B623",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.039298*CA + 0.011228*CH + 0.011228*载重 + 61.859649",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B621",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.044906*CA + 0.012830*载重 + 10.075472",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6089\nK120B6104",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.059586*CA + -0.004966*CH + 0.000000*载重 + 437.324138",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8762",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.010764*CA + -0.012379*CB + 1516.415501",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6322",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.006154*CA + 0.009231*CB + 143.846154",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6151",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + -0.000000*CH + 0.000000*载重 + 0.000022*CA^2 + -0.000110*CA CH + 0.000261*CA 载重 + -0.000022*CH^2 + 0.000002*CH 载重 + -0.000098*载重^2 + 740.074485",
-    "data_points": 6,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B6096",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -2.360000*CA + 3.600000*载重 + 294.000000",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B6094",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.350000*CA + 0.187805*载重 + -425.353659",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B8588",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.016495*CA + 0.037113*CB + 1006.701031",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B895",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.125000*CA + -0.000000*CB + 25.000000",
-    "data_points": 3,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K323B643",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CH + 55.000000",
-    "data_points": 2,
-    "component_name": "门楣",
-    "parameters": [
-      "CH",
-      "HH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B694",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.028302*CA + 0.050943*CB + 337.641509",
-    "data_points": 2,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6024",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.040000*CA + 0.000000*CH + 0.000000*载重 + 380.000000",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B6009",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.200000*CA + 0.000000*载重 + 355.000000",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K324B716",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.009600*CH + -9.840000",
-    "data_points": 2,
-    "component_name": "门楣",
-    "parameters": [
-      "CH",
-      "HH",
-      "JJ"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6165",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.014400*CA + 0.020800*CB + 155.440000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B630",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.069049*CA + -0.024551*载重 + 261.720737",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6110",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.051176*CA + 0.054706*CB + -8.882353",
-    "data_points": 3,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B885",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + 1.536765*载重 + -1437.500000",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710092\nV0710062",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.078333*CA + 0.054487*载重 + 152.948718",
-    "data_points": 3,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6347",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 100.000000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6418",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.025236*CA + 0.000637*CB + 66.573453",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "M0730048_G02",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 30.000000",
-    "data_points": 2,
-    "component_name": "轿底托架",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710269\nV0720078\nM0750076",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*载重 + 105.000000",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口 护罩",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B6742",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000000*CA + 0.000000*CB + 0.000016*CA^2 + 0.000041*CA CB + 0.000016*CB^2 + -4.694169",
-    "data_points": 5,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B6088",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.036226*CA + -0.006792*载重 + 119.056604",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K120B6235",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.010256*CA + 0.000000*CH + 0.015385*载重 + 437.230769",
-    "data_points": 3,
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6349",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 165.000000",
-    "data_points": 2,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710251",
-    "model_type": "polynomial",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000001*CA + -0.000000*载重 + 0.000211*CA^2 + -0.000455*CA 载重 + 0.000245*载重^2 + 110.558046",
-    "data_points": 5,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0740100\nM0750065",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.014184*CA + -0.042350*CH + 0.029192*载重 + 411.736390",
-    "data_points": 4,
-    "component_name": "轿厢架装配 含反绳轮装置",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0740119\n2xM1100022",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CH + 0.000000*载重 + 210.000000",
-    "data_points": 2,
-    "component_name": "轿厢架装配 含反绳轮装置",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0730110",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*CB + 67.000000",
-    "data_points": 2,
-    "component_name": "轿底托架",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710105\nV0710149",
-    "model_type": "linear",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000000*CA + 0.000000*载重 + 120.000000",
-    "data_points": 2,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K321B6056",
-    "component_name": "门楣",
-    "parameters": [
-      "CH",
-      "HH",
-      "JJ"
-    ],
-    "model_type": "polynomial_2",
-    "r2_score": 1.0,
-    "formula": "unit_weight = 0.000004*CH + 0.000001*HH + 0.000002*JJ + 0.000075*CH^2 + -0.000230*CH*HH + 0.000124*CH*JJ + 0.000172*HH^2 + -0.000169*HH*JJ + 0.000027*JJ^2 + 9.255210",
-    "data_points": 7
-  },
-  {
-    "component_drawing_no": "S321B828",
-    "component_name": "门楣",
-    "parameters": [
-      "CH",
-      "HH",
-      "JJ"
-    ],
-    "model_type": "polynomial_2",
-    "r2_score": 1.0,
-    "formula": "unit_weight = -0.000004*CH + 0.000000*HH + -0.000167*JJ + 0.003761*CH^2 + -0.006899*CH*HH + -0.004171*CH*JJ + 0.002044*HH^2 + 0.009356*HH*JJ + -0.005599*JJ^2 + -39.726947",
-    "data_points": 7
-  },
-  {
     "component_drawing_no": "K125B6066",
     "component_name": "安全钳装置 含钳口",
     "parameters": [
       "CA",
       "载重"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.999999999999908,
-    "formula": "unit_weight = -20.450170*CA + 10.065244*载重 + 0.017148*CA^2 + -0.010345*CA*载重 + -0.000786*载重^2 + -0.000005*CA^3 + 0.000006*CA^2*载重 + -0.000004*CA*载重^2 + 0.000001*载重^3 + 6101.067224",
+    "model_type": "random_forest",
+    "r2_score": 0.9131550443122496,
+    "formula": "随机森林模型",
     "data_points": 10
-  },
-  {
-    "component_drawing_no": "K320B6030",
-    "model_type": "polynomial",
-    "r2_score": 0.9999683240782935,
-    "formula": "unit_weight = -0.085521*CA + 0.050681*CB + 0.000024*CA^2 + 0.000059*CA CB + -0.000014*CB^2 + 61.869927",
-    "data_points": 7,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B6652",
-    "model_type": "polynomial",
-    "r2_score": 0.9991705339142868,
-    "formula": "unit_weight = -0.051492*CA + 0.094958*CB + 0.000029*CA^2 + 0.000037*CA CB + -0.000018*CB^2 + 30.878595",
-    "data_points": 7,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
   },
   {
     "component_drawing_no": "K321B848",
@@ -1436,16 +19,16 @@
       "HH",
       "JJ"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.9990437088784564,
-    "formula": "unit_weight = -2.893957*CH + 1.838818*HH + -2.118548*JJ + -0.001556*CH^2 + 0.006194*CH*HH + -0.000923*CH*JJ + -0.004733*HH^2 + 0.002132*HH*JJ + 0.000518*JJ^2 + 0.000000*CH^3 + 0.000000*CH^2*HH + -0.000001*CH^2*JJ + -0.000003*CH*HH^2 + 0.000002*CH*HH*JJ + -0.000000*CH*JJ^2 + 0.000002*HH^3 + -0.000002*HH^2*JJ + -0.000000*HH*JJ^2 + -0.000000*JJ^3 + 2147.304318",
+    "model_type": "random_forest",
+    "r2_score": 0.9529641573726698,
+    "formula": "随机森林模型",
     "data_points": 27
   },
   {
     "component_drawing_no": "K120B6112",
-    "model_type": "polynomial",
-    "r2_score": 0.9987283830100043,
-    "formula": "unit_weight = 23.645292*CA + 90.961135*CH + -7.479995*载重 + -0.000353*CA^2 + -0.007989*CA CH + -0.000477*CA 载重 + -0.014724*CH^2 + 0.003168*CH 载重 + -0.000092*载重^2 + -140484.165190",
+    "model_type": "random_forest",
+    "r2_score": 0.9059196356275304,
+    "formula": "随机森林模型",
     "data_points": 11,
     "component_name": "轿厢架装配 含轿顶护栏",
     "parameters": [
@@ -1456,9 +39,9 @@
   },
   {
     "component_drawing_no": "K124B847",
-    "model_type": "polynomial",
-    "r2_score": 0.9974443577646703,
-    "formula": "unit_weight = -0.001273*CA + 0.000012*CA^2 + 64.320215",
+    "model_type": "random_forest",
+    "r2_score": 0.8941722974140363,
+    "formula": "随机森林模型",
     "data_points": 10,
     "component_name": "轿底滑轮组",
     "parameters": [
@@ -1466,75 +49,15 @@
     ]
   },
   {
-    "component_drawing_no": "K320B6431\nK320B6428",
-    "model_type": "polynomial",
-    "r2_score": 0.9968823070927514,
-    "formula": "unit_weight = -0.045972*CA + 0.021295*CB + 0.000011*CA^2 + 0.000029*CA CB + -0.000001*CB^2 + 86.601531",
-    "data_points": 6,
-    "component_name": "轿顶基板 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
     "component_drawing_no": "K121B881",
-    "model_type": "polynomial",
-    "r2_score": 0.9931367355969508,
-    "formula": "unit_weight = -0.090887*CA + 0.019995*CB + 0.000049*CA^2 + 0.000059*CA CB + -0.000016*CB^2 + 110.326333",
+    "model_type": "random_forest",
+    "r2_score": 0.9871829928566983,
+    "formula": "随机森林模型",
     "data_points": 30,
     "component_name": "轿厢底 （不包括地板）",
     "parameters": [
       "CA",
       "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "L125B801",
-    "model_type": "polynomial",
-    "r2_score": 0.9916743308662088,
-    "formula": "unit_weight = -0.130178*CA + 0.051921*载重 + 0.000078*CA^2 + -0.000035*CA 载重 + -0.000006*载重^2 + 330.588359",
-    "data_points": 7,
-    "component_name": "安全钳装置",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "V0710052\nM9030001",
-    "model_type": "polynomial",
-    "r2_score": 0.9877902812794335,
-    "formula": "unit_weight = -1.680998*CA + 2.694031*载重 + 0.001279*CA^2 + -0.001878*CA 载重 + -0.000272*载重^2 + 210.913753",
-    "data_points": 8,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K320B6034",
-    "model_type": "polynomial",
-    "r2_score": 0.9842138346237148,
-    "formula": "unit_weight = -0.062772*CA + -0.383669*CB + 0.000050*CA^2 + -0.000002*CA CB + 0.000129*CB^2 + 402.039498",
-    "data_points": 7,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B835",
-    "model_type": "polynomial",
-    "r2_score": 0.9838002691485771,
-    "formula": "unit_weight = -1.826930*CA + 1.444147*载重 + 0.000873*CA^2 + -0.001005*CA 载重 + 0.000120*载重^2 + 846.361795",
-    "data_points": 8,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
     ]
   },
   {
@@ -1545,9 +68,9 @@
       "CH",
       "JJ"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.9816270402862701,
-    "formula": "unit_weight = -303.759852*CA + -2287.479853*CH + 371.833310*JJ + -0.123598*CA^2 + 0.189569*CA*CH + 0.452461*CA*JJ + 0.565207*CH^2 + 1.535003*CH*JJ + -2.915465*JJ^2 + -0.000000*CA^3 + 0.000001*CA^2*CH + 0.000135*CA^2*JJ + 0.000013*CA*CH^2 + -0.000281*CA*CH*JJ + -0.000032*CA*JJ^2 + 0.000008*CH^3 + -0.000712*CH^2*JJ + 0.001392*CH*JJ^2 + -0.000251*JJ^3 + 2001305.447778",
+    "model_type": "random_forest",
+    "r2_score": 0.82446663127688,
+    "formula": "随机森林模型",
     "data_points": 28
   },
   {
@@ -1576,67 +99,6 @@
     ]
   },
   {
-    "component_drawing_no": "K124B849",
-    "model_type": "polynomial",
-    "r2_score": 0.9719444383393041,
-    "formula": "unit_weight = 0.043517*CA + -0.000003*CA^2 + 29.825095",
-    "data_points": 6,
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ]
-  },
-  {
-    "component_drawing_no": "K324B607",
-    "component_name": "门楣",
-    "parameters": [
-      "CH",
-      "HH",
-      "JJ"
-    ],
-    "model_type": "polynomial_2",
-    "r2_score": 0.9706538527544191,
-    "formula": "unit_weight = 0.000002*CH + -0.000000*HH + -0.000001*JJ + -0.001700*CH^2 + 0.003241*CH*HH + 0.002617*CH*JJ + -0.001359*HH^2 + -0.003185*HH*JJ + -0.000472*JJ^2 + 176.028181",
-    "data_points": 9
-  },
-  {
-    "component_drawing_no": "K121B871",
-    "model_type": "polynomial",
-    "r2_score": 0.9705821148554867,
-    "formula": "unit_weight = -16.493265*CA + -14.747963*CB + 0.002072*CA^2 + 0.004292*CA CB + 0.001638*CB^2 + 30853.551686",
-    "data_points": 7,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K321B852",
-    "model_type": "polynomial",
-    "r2_score": 0.9695692614402619,
-    "formula": "unit_weight = -1.490493*CA + -0.780061*CB + 0.000185*CA^2 + 0.000297*CA CB + 0.000022*CB^2 + 2782.146459",
-    "data_points": 8,
-    "component_name": "轿顶基板",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K321B839",
-    "model_type": "polynomial",
-    "r2_score": 0.968291750505446,
-    "formula": "unit_weight = 0.034283*CA + 0.769692*CH + -0.000272*CA^2 + 0.000368*CA CH + -0.000263*CH^2 + -1074.987047",
-    "data_points": 9,
-    "component_name": "侧柱",
-    "parameters": [
-      "CA",
-      "CH",
-      "JJ"
-    ]
-  },
-  {
     "component_drawing_no": "L321B657",
     "component_name": "门楣",
     "parameters": [
@@ -1644,16 +106,16 @@
       "HH",
       "JJ"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.9609169580605225,
-    "formula": "unit_weight = -0.284509*CH + 2.032843*HH + 0.676471*JJ + 0.000175*CH^2 + 0.000039*CH*HH + -0.000477*CH*JJ + -0.001052*HH^2 + 0.000479*HH*JJ + -0.000628*JJ^2 + -0.000000*CH^3 + -0.000000*CH^2*HH + 0.000000*CH^2*JJ + -0.000000*CH*HH^2 + 0.000000*CH*HH*JJ + 0.000000*CH*JJ^2 + 0.000000*HH^3 + -0.000000*HH^2*JJ + 0.000000*HH*JJ^2 + 0.000000*JJ^3 + -1434.765833",
+    "model_type": "random_forest",
+    "r2_score": 0.978324786411163,
+    "formula": "随机森林模型",
     "data_points": 76
   },
   {
     "component_drawing_no": "K121B874",
-    "model_type": "polynomial",
-    "r2_score": 0.9603828832168848,
-    "formula": "unit_weight = 0.010875*CA + 0.019775*CB + 0.000013*CA^2 + 0.000043*CA CB + 0.000010*CB^2 + 90.450872",
+    "model_type": "random_forest",
+    "r2_score": 0.966477876788205,
+    "formula": "随机森林模型",
     "data_points": 89,
     "component_name": "轿厢底 （不包括地板）",
     "parameters": [
@@ -1699,18 +161,6 @@
     ]
   },
   {
-    "component_drawing_no": "K125B6077",
-    "model_type": "polynomial",
-    "r2_score": 0.9380266791809566,
-    "formula": "unit_weight = -0.004362*CA + -0.136942*载重 + -0.000013*CA^2 + 0.000086*CA 载重 + -0.000008*载重^2 + 295.068888",
-    "data_points": 9,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
     "component_drawing_no": "K125B6074",
     "model_type": "polynomial",
     "r2_score": 0.922581477361657,
@@ -1729,16 +179,16 @@
       "CA",
       "载重"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.9188247544490411,
-    "formula": "unit_weight = 0.589094*CA + -2.822051*载重 + -0.003051*CA^2 + 0.006715*CA*载重 + -0.001014*载重^2 + 0.000003*CA^3 + -0.000011*CA^2*载重 + 0.000011*CA*载重^2 + -0.000005*载重^3 + 759.547680",
+    "model_type": "random_forest",
+    "r2_score": 0.7125303828005313,
+    "formula": "随机森林模型",
     "data_points": 16
   },
   {
     "component_drawing_no": "K125B853",
-    "model_type": "polynomial",
-    "r2_score": 0.9104834576353968,
-    "formula": "unit_weight = -0.021102*CA + -0.036571*载重 + 0.000007*CA^2 + 0.000013*CA 载重 + 0.000001*载重^2 + 418.819821",
+    "model_type": "random_forest",
+    "r2_score": 0.910522221333388,
+    "formula": "随机森林模型",
     "data_points": 13,
     "component_name": "安全钳装置 含钳口",
     "parameters": [
@@ -1754,9 +204,9 @@
       "HH",
       "JJ"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.9028507254101702,
-    "formula": "unit_weight = 0.000002*CH + 0.000000*HH + 0.000000*JJ + -0.000052*CH^2 + 0.000012*CH*HH + 0.000260*CH*JJ + -0.000127*HH^2 + 0.000346*HH*JJ + -0.000647*JJ^2 + 0.000000*CH^3 + -0.000000*CH^2*HH + 0.000000*CH^2*JJ + 0.000000*CH*HH^2 + -0.000000*CH*HH*JJ + 0.000000*CH*JJ^2 + -0.000000*HH^3 + 0.000000*HH^2*JJ + 0.000000*HH*JJ^2 + 0.000000*JJ^3 + 43.282692",
+    "model_type": "random_forest",
+    "r2_score": 0.8929644804339079,
+    "formula": "随机森林模型",
     "data_points": 31
   },
   {
@@ -1767,7 +217,7 @@
       "CB"
     ],
     "model_type": "random_forest",
-    "r2_score": 0.8999460949848463,
+    "r2_score": 0.9005767587784046,
     "formula": "随机森林模型",
     "data_points": 27
   },
@@ -1810,31 +260,6 @@
     "data_points": 54
   },
   {
-    "component_drawing_no": "V0740123",
-    "model_type": "linear",
-    "r2_score": 0.8928571428571429,
-    "formula": "unit_weight = 0.012500*CA + 0.000000*CH + 0.000000*载重 + 73.000000",
-    "data_points": 3,
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "K125B840",
-    "model_type": "polynomial",
-    "r2_score": 0.8894563442601718,
-    "formula": "unit_weight = 0.914259*CA + 0.539396*载重 + -0.000101*CA^2 + -0.000255*CA 载重 + -0.000007*载重^2 + -1205.476308",
-    "data_points": 7,
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ]
-  },
-  {
     "component_drawing_no": "K125B601",
     "model_type": "polynomial",
     "r2_score": 0.8867723409577799,
@@ -1872,46 +297,10 @@
   },
   {
     "component_drawing_no": "L121B657",
-    "model_type": "polynomial",
-    "r2_score": 0.8749454880312018,
-    "formula": "unit_weight = 0.026697*CA + 0.011998*CB + -0.000006*CA^2 + 0.000054*CA CB + -0.000005*CB^2 + 23.234560",
-    "data_points": 163,
-    "component_name": "轿厢底 （不包括地板）",
-    "parameters": [
-      "CA",
-      "CB"
-    ]
-  },
-  {
-    "component_drawing_no": "K121B850",
-    "model_type": "linear",
-    "r2_score": 0.8745469751881796,
-    "formula": "unit_weight = -0.266471*CA + -0.149412*CH + 0.000000*载重 + 1709.411765",
-    "data_points": 4,
-    "component_name": "轿厢架装配 含轿顶护栏",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ]
-  },
-  {
-    "component_drawing_no": "S124B803",
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ],
     "model_type": "random_forest",
-    "r2_score": 0.873192438292344,
+    "r2_score": 0.9557561158468875,
     "formula": "随机森林模型",
-    "data_points": 8
-  },
-  {
-    "component_drawing_no": "K121B938",
-    "model_type": "polynomial",
-    "r2_score": 0.8720655987888175,
-    "formula": "unit_weight = 10.058834*CA + 0.634736*CB + -0.002049*CA^2 + -0.000851*CA CB + 0.000274*CB^2 + -10353.498601",
-    "data_points": 7,
+    "data_points": 163,
     "component_name": "轿厢底 （不包括地板）",
     "parameters": [
       "CA",
@@ -1927,7 +316,7 @@
       "载重"
     ],
     "model_type": "random_forest",
-    "r2_score": 0.8716144848766563,
+    "r2_score": 0.8549460231312118,
     "formula": "随机森林模型",
     "data_points": 31
   },
@@ -1945,9 +334,9 @@
   },
   {
     "component_drawing_no": "L121B660",
-    "model_type": "polynomial",
-    "r2_score": 0.8580337435498697,
-    "formula": "unit_weight = 0.519088*CA + 0.046022*CB + -0.000085*CA^2 + -0.000116*CA CB + 0.000036*CB^2 + -261.183914",
+    "model_type": "random_forest",
+    "r2_score": 0.8966772728680891,
+    "formula": "随机森林模型",
     "data_points": 15,
     "component_name": "轿厢底 （不包括地板）",
     "parameters": [
@@ -1968,17 +357,6 @@
     "data_points": 23
   },
   {
-    "component_drawing_no": "K124B886",
-    "model_type": "polynomial",
-    "r2_score": 0.8525943396226415,
-    "formula": "unit_weight = -4.455000*CA + 0.001250*CA^2 + 4214.000000",
-    "data_points": 5,
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ]
-  },
-  {
     "component_drawing_no": "S321B836",
     "component_name": "侧柱",
     "parameters": [
@@ -1990,30 +368,6 @@
     "r2_score": 0.8462707625321354,
     "formula": "随机森林模型",
     "data_points": 31
-  },
-  {
-    "component_drawing_no": "M1100019_G01\nM0750006",
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.8438280368787854,
-    "formula": "unit_weight = 9.935638*CA + -0.006055*CA^2 + 0.000001*CA^3 + -5238.269151",
-    "data_points": 5
-  },
-  {
-    "component_drawing_no": "S321B837",
-    "model_type": "polynomial",
-    "r2_score": 0.8429081228502643,
-    "formula": "unit_weight = -4.012511*CA + -5.488816*CH + -0.000037*CA^2 + 0.001740*CA CH + 0.000661*CH^2 + 9248.383378",
-    "data_points": 9,
-    "component_name": "前壁侧柱",
-    "parameters": [
-      "CA",
-      "CH",
-      "JJ"
-    ]
   },
   {
     "component_drawing_no": "L321B602",
@@ -2029,9 +383,9 @@
   },
   {
     "component_drawing_no": "K121B6639",
-    "model_type": "polynomial",
-    "r2_score": 0.8349245670520176,
-    "formula": "unit_weight = -0.220381*CA + -0.134890*CB + 0.000044*CA^2 + 0.000092*CA CB + 0.000015*CB^2 + 406.082253",
+    "model_type": "random_forest",
+    "r2_score": 0.8924682838709759,
+    "formula": "随机森林模型",
     "data_points": 29,
     "component_name": "轿厢底 （不包括地板）",
     "parameters": [
@@ -2054,9 +408,9 @@
   },
   {
     "component_drawing_no": "L321B660",
-    "model_type": "polynomial",
-    "r2_score": 0.8133365728102185,
-    "formula": "unit_weight = -0.084555*CA + -0.338658*CH + 0.000020*CA^2 + 0.000016*CA CH + 0.000063*CH^2 + 493.807141",
+    "model_type": "random_forest",
+    "r2_score": 0.8997893998063892,
+    "formula": "随机森林模型",
     "data_points": 12,
     "component_name": "前壁/侧柱",
     "parameters": [
@@ -2098,7 +452,7 @@
       "载重"
     ],
     "model_type": "random_forest",
-    "r2_score": 0.7660946182895619,
+    "r2_score": 0.7858386725466878,
     "formula": "随机森林模型",
     "data_points": 63
   },
@@ -2122,7 +476,7 @@
       "载重"
     ],
     "model_type": "random_forest",
-    "r2_score": 0.7334690232925221,
+    "r2_score": 0.758468639320976,
     "formula": "随机森林模型",
     "data_points": 79
   },
@@ -2133,9 +487,9 @@
       "CA",
       "CB"
     ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.7162780653539027,
-    "formula": "unit_weight = -296881.800333*CA + -362933.697411*CB + 59.060083*CA^2 + 142.523303*CA*CB + 88.072268*CB^2 + -0.003953*CA^3 + -0.014051*CA^2*CB + -0.017215*CA*CB^2 + -0.007146*CB^3 + 500766635.018403",
+    "model_type": "random_forest",
+    "r2_score": 0.6329321758118692,
+    "formula": "随机森林模型",
     "data_points": 16
   },
   {
@@ -2146,9 +500,9 @@
       "CH",
       "载重"
     ],
-    "model_type": "linear",
-    "r2_score": 0.6800000000000000,
-    "formula": "unit_weight = 0.000059*CA*CH",
+    "model_type": "random_forest",
+    "r2_score": 0.5897365118183122,
+    "formula": "随机森林模型",
     "data_points": 13
   },
   {
@@ -2170,9 +524,9 @@
       "CH",
       "载重"
     ],
-    "model_type": "polynomial_2",
-    "r2_score": 0.6355111099910278,
-    "formula": "unit_weight = 0.002939*CA + -0.007353*CH + -0.000752*载重 + 0.041826*CA^2 + -0.004422*CA*CH + -0.171131*CA*载重 + 0.000112*CH^2 + 0.009747*CH*载重 + 0.173561*载重^2 + -449.111509",
+    "model_type": "random_forest",
+    "r2_score": 0.600770933742718,
+    "formula": "随机森林模型",
     "data_points": 10
   },
   {
@@ -2186,17 +540,6 @@
     "r2_score": 0.520198715618541,
     "formula": "unit_weight = 0.020000*CA + 0.120000*载重 + -18.600000",
     "data_points": 13
-  },
-  {
-    "component_drawing_no": "K124B821",
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ],
-    "model_type": "random_forest",
-    "r2_score": 0.5098977868586043,
-    "formula": "随机森林模型",
-    "data_points": 9
   },
   {
     "component_drawing_no": "K125B6039",
@@ -2218,45 +561,9 @@
       "载重"
     ],
     "model_type": "random_forest",
-    "r2_score": 0.502898357848885,
+    "r2_score": 0.5078641667082671,
     "formula": "随机森林模型",
     "data_points": 33
-  },
-  {
-    "component_drawing_no": "S121B824",
-    "component_name": "轿厢架装配",
-    "parameters": [
-      "CA",
-      "CH",
-      "载重"
-    ],
-    "model_type": "linear",
-    "r2_score": 0.438150289017341,
-    "formula": "unit_weight = 0.024171*CA + 0.012335*CH + 0.004747*载重 + 71.817542",
-    "data_points": 4
-  },
-  {
-    "component_drawing_no": "V0710052\nM0770005",
-    "component_name": "安全钳装置 含钳口",
-    "parameters": [
-      "CA",
-      "载重"
-    ],
-    "model_type": "polynomial_3",
-    "r2_score": 0.3911401098901097,
-    "formula": "unit_weight = 0.000000*CA + -0.000000*载重 + 0.000421*CA^2 + -0.000190*CA*载重 + -0.000433*载重^2 + 0.000001*CA^3 + -0.000004*CA^2*载重 + 0.000007*CA*载重^2 + -0.000004*载重^3 + 122.135509",
-    "data_points": 9
-  },
-  {
-    "component_drawing_no": "M0770005\nD0720011",
-    "component_name": "轿底滑轮组",
-    "parameters": [
-      "CA"
-    ],
-    "model_type": "polynomial_2",
-    "r2_score": 0.33333333333333337,
-    "formula": "unit_weight = -0.077333*CA + 0.000027*CA^2 + 66.000000",
-    "data_points": 4
   },
   {
     "component_drawing_no": "S125B800",
@@ -2265,9 +572,9 @@
       "CA",
       "载重"
     ],
-    "model_type": "polynomial_2",
-    "r2_score": 0.3090034955138524,
-    "formula": "unit_weight = 4.694970*CA + -8.845439*载重 + -0.012953*CA^2 + 0.050166*CA*载重 + -0.048738*载重^2 + -411.775758",
+    "model_type": "random_forest",
+    "r2_score": 0.2899555774624708,
+    "formula": "随机森林模型",
     "data_points": 10
   }
 ]
