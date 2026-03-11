@@ -1,0 +1,209 @@
+@media print {
+		:root {
+			color-scheme: light !important;
+		}
+		html {
+			background-color: #ffffff !important;
+			background-image: none !important;
+			height: auto !important;
+			width: 100% !important;
+		}
+	* {
+		backdrop-filter: none !important;
+		filter: none !important;
+		transform: none !important;
+		transition: none !important;
+		animation: none !important;
+		box-shadow: none !important;
+		text-shadow: none !important;
+		opacity: 1 !important;
+		mix-blend-mode: normal !important;
+		background-blend-mode: normal !important;
+		background: transparent !important;
+		color: black !important;
+		border-color: black !important;
+		font-family: sans-serif !important;
+		-webkit-font-smoothing: auto !important;
+		font-weight: normal !important;
+		line-height: normal !important;
+		letter-spacing: normal !important;
+		word-spacing: normal !important;
+		text-transform: none !important;
+		text-decoration: none !important;
+		list-style: none !important;
+		outline: none !important;
+		pointer-events: none !important;
+		-webkit-print-color-adjust: exact !important;
+		print-color-adjust: exact !important;
+	}
+	html, body {
+		height: auto !important;
+		width: 100% !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		display: block !important;
+		background: white !important;
+	}
+	
+	.summary-strip {
+		display: flex !important;
+		background: none !important;
+		border: none !important;
+		box-shadow: none !important;
+		border-radius: 0 !important;
+		padding: 10px 0 !important;
+		margin-bottom: 15px !important;
+	}
+	.summary-title, 
+	.summary-sub, 
+	.summary-weight-label, 
+	.summary-weight-unit {
+		color: black !important;
+	}
+	.summary-pill {
+		color: black !important;
+		border: 1px solid #666 !important;
+	}
+	.summary-pill span {
+		color: black !important;
+	}
+	.summary-weight-value {
+		background: none !important;
+		-webkit-background-clip: border-box !important;
+		background-clip: border-box !important;
+		color: black !important;
+		text-shadow: none !important;
+	}
+	.summary-bar {
+		background: none !important;
+		border: 1px solid #000 !important;
+		box-shadow: none !important;
+		color: black !important;
+	}
+	.summary-footer {
+		color: black !important;
+	}
+	.summary-footer span {
+		color: black !important;
+		font-weight: bold;
+	}
+	.page {
+		max-width: none;
+		width: 100%;
+		margin: 0;
+		padding: 20px;
+	}
+	.layout {
+		display: block;
+	}
+	.card {
+		box-shadow: none !important;
+		background: none !important;
+		border: none !important;
+		padding: 0;
+		margin: 0;
+	}
+	.card::before {
+		display: none !important;
+	}
+	.card-project {
+		page-break-after: always;
+		min-height: auto;
+		display: block !important;
+	}
+	.card-detail {
+		page-break-before: always !important;
+		page-break-inside: avoid;
+		min-height: auto;
+		display: block !important;
+	}
+	.card-inner {
+		display: block !important;
+	}
+	.print-only {
+		display: block !important;
+	}
+	.print-title {
+		color: black !important;
+		font-size: 24px;
+		font-weight: bold;
+		text-align: center;
+		margin-bottom: 30px;
+		text-transform: none;
+	}
+	.card-header {
+		display: none;
+	}
+	
+	.bg-grid, .top-bar, .toast, .modal-backdrop, .cell-actions, .badge,
+	.section-tag, .tag-pill, .table-footer-add, .delete-btn, .print-footer {
+		display: none !important;
+	}
+	.table-shell {
+		border: 1px solid #000 !important;
+		border-radius: 0;
+		background: none !important;
+		margin-top: 10px;
+		overflow: visible !important;
+	}
+	.table-head {
+		background: #f3f4f6 !important;
+		color: black !important;
+		border-bottom: 1px solid #000 !important;
+	}
+	.table-body {
+		max-height: none !important;
+		overflow: visible !important;
+		height: auto !important;
+	}
+	.table-row {
+		background: none !important;
+		border-bottom: 1px solid #ccc !important;
+		color: black !important;
+	}
+	.cell-label, .cell-sub, .cell-mono, .section-title, .field-label {
+		color: black !important;
+		text-shadow: none !important;
+	}
+	.field-input, .field-select, .small-input, .small-select {
+		background: none !important;
+		border: none !important;
+		box-shadow: none !important;
+		color: black !important;
+		padding: 0;
+		height: auto;
+		width: 100%;
+		border-radius: 0 !important;
+		overflow: visible !important;
+	}
+	input::placeholder {
+		color: transparent !important;
+	}
+	select {
+		appearance: none;
+		-webkit-appearance: none;
+		background-image: none !important;
+	}
+	/* 字体相关 */
+	.field-input, .field-select, .small-input, .small-select, input, select {
+		text-shadow: none !important;
+		font-family: "Microsoft YaHei", sans-serif !important;
+		font-weight: 500 !important;
+		-webkit-font-smoothing: antialiased !important;
+	}
+	.print-footer {
+		display: flex !important;
+		margin-top: 10px !important;
+		padding-top: 10px;
+		border-top: 1px solid #000;
+		position: static;
+		justify-content: center;
+		font-size: 10px;
+		color: black;
+	}
+	.footer-right {
+		position: absolute;
+		right: 0;
+		top: 10px;
+	}
+}

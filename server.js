@@ -1,0 +1,399 @@
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const { PythonShell } = require('python-shell');
+const { spawn } = require('child_process');
+let puppeteer;
+function getChromePath() {
+    const candidates = [
+        process.env.CHROME_PATH,
+        'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+        'C:\\\\Program Files (x86)\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',
+        'C:\\\\Program Files\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe',
+        'C:\\\\Program Files (x86)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe',
+        'C:\\\\Program Files\\\\BraveSoftware\\\\Brave-Browser\\\\Application\\\\brave.exe',
+        'C:\\\\Program Files (x86)\\\\BraveSoftware\\\\Brave-Browser\\\\Application\\\\brave.exe'
+    ].filter(Boolean);
+    for (const p of candidates) {
+        try {
+            if (p && fs.existsSync(p)) return p;
+        } catch (_) {}
+    }
+    return null;
+}
+
+const app = express();
+const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
+
+// 中间件
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
+app.use(express.static('.'));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/car_weight_calculator', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+
+// 读取组件数据
+const componentsData = JSON.parse(fs.readFileSync('formulas_optimized.json', 'utf8'));
+
+// 获取所有组件图号的API
+app.get('/api/components', (req, res) => {
+    const componentList = componentsData.map(component => ({
+        component_drawing_no: component.component_drawing_no,
+        model_type: component.model_type,
+        r2_score: component.r2_score
+    }));
+    res.json(componentList);
+});
+
+// 获取特定组件信息的API
+app.get('/api/component/:drawingNo', (req, res) => {
+    let drawingNo = req.params.drawingNo;
+    
+    console.log(`搜索组件: "${drawingNo}"`);
+    
+    // 处理特殊字符编码问题
+    // 将空格转换为换行符，以匹配JSON中的实际值
+    const processedDrawingNo = drawingNo.replace(/ /g, '\n');
+    
+    console.log(`处理后的组件名: "${processedDrawingNo}"`);
+    
+    // 多种匹配策略
+    let component = null;
+    
+    // 策略1: 精确匹配处理后的值
+    component = componentsData.find(c => c.component_drawing_no === processedDrawingNo);
+    
+    // 策略2: 精确匹配原始值
+    if (!component) {
+        component = componentsData.find(c => c.component_drawing_no === drawingNo);
+    }
+    
+    // 策略3: 模糊匹配 - 将JSON中的换行符替换为空格进行比较
+    if (!component) {
+        component = componentsData.find(c => 
+            c.component_drawing_no.replace(/\n/g, ' ') === drawingNo
+        );
+    }
+    
+    // 策略4: 模糊匹配 - 去除所有空白字符进行比较
+    if (!component) {
+        const normalizedInput = drawingNo.replace(/\s/g, '');
+        component = componentsData.find(c => 
+            c.component_drawing_no.replace(/\s/g, '') === normalizedInput
+        );
+    }
+    
+    // 策略5: 部分匹配 - 检查是否包含组件号的主要部分
+    if (!component) {
+        // 提取主要部分进行匹配
+        const mainPart = drawingNo.replace(/\s/g, '').substring(0, 8);
+        component = componentsData.find(c => 
+            c.component_drawing_no.replace(/\s/g, '').includes(mainPart)
+        );
+    }
+    
+    if (!component) {
+        console.log('组件未找到');
+        return res.status(404).json({ error: 'Component not found' });
+    }
+    
+    console.log(`找到组件: ${component.component_drawing_no}`);
+    res.json(component);
+});
+
+// 计算重量的API
+app.post('/api/calculate', async (req, res) => {
+    let { component_drawing_no, parameters } = req.body;
+    
+    // 处理特殊字符编码问题
+    // 将空格转换为换行符，以匹配JSON中的实际值
+    component_drawing_no = component_drawing_no.replace(/ /g, '\n');
+    
+    // 查找组件
+    const component = componentsData.find(c => c.component_drawing_no === component_drawing_no);
+    
+    if (!component) {
+        return res.status(404).json({ error: 'Component not found' });
+    }
+    
+    // 验证参数
+    if (!parameters) {
+        return res.status(400).json({ error: 'Parameters are required' });
+    }
+    
+    // 检查是否所有必需的参数都已提供
+    const missingParams = component.parameters.filter(param => !(param in parameters));
+    if (missingParams.length > 0) {
+        return res.status(400).json({ error: `Missing parameters: ${missingParams.join(', ')}` });
+    }
+    
+    try {
+        let weight;
+        
+        if (component.model_type === 'random_forest') {
+            // 对于随机森林模型，使用实际的模型进行计算
+            // 传递参数顺序以兼容旧版本模型
+            weight = await calculateUsingRandomForest(component_drawing_no, parameters, component.parameters);
+        } else {
+            // 使用公式计算
+            weight = calculateUsingFormula(component.formula, parameters);
+        }
+        
+        res.json({
+            component_drawing_no,
+            weight: parseFloat(weight.toFixed(2)),
+            model_type: component.model_type,
+            r2_score: component.r2_score
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Calculation error: ' + error.message });
+    }
+});
+
+// 使用公式计算重量
+function calculateUsingFormula(formula, parameters) {
+    try {
+        // 移除 "unit_weight = " 前缀
+        let expression = formula.replace('unit_weight = ', '');
+        
+        // 先处理乘方运算（支持中英文参数）
+        expression = expression.replace(/([a-zA-Z\u4e00-\u9fa5]+)\^(\d+)/g, 'Math.pow($1, $2)');
+        
+        // 处理参数之间的乘法（如 CA CH 变成 CA*CH）
+        expression = expression.replace(/([a-zA-Z\u4e00-\u9fa5]+)\s+([a-zA-Z\u4e00-\u9fa5]+)/g, '$1*$2');
+        
+        // 替换参数值 - 先替换多字符参数，再替换单字符参数，避免部分匹配问题
+        // 按参数名长度降序排列，确保长参数名先被替换
+        const sortedParams = Object.entries(parameters).sort((a, b) => 
+            b[0].length - a[0].length
+        );
+        
+        for (const [param, value] of sortedParams) {
+            // 对于中文参数，使用更精确的匹配方式
+            if (/[\u4e00-\u9fa5]/.test(param)) {
+                // 中文参数直接替换，不使用单词边界
+                const regex = new RegExp(param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                expression = expression.replace(regex, value.toString());
+            } else {
+                // 英文参数使用单词边界确保完整匹配
+                const escapedParam = param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp('\\b' + escapedParam + '\\b', 'g');
+                expression = expression.replace(regex, value.toString());
+            }
+        }
+        
+        // 处理剩余的空格（最后处理）
+        expression = expression.replace(/\s+/g, '');
+        
+        console.log('计算表达式:', expression);
+        
+        // 计算表达式
+        const result = eval(expression);
+        return result;
+    } catch (error) {
+        throw new Error('Formula calculation error: ' + error.message);
+    }
+}
+
+// 随机森林模型计算
+function calculateUsingRandomForest(component_drawing_no, parameters, paramOrder) {
+    return new Promise((resolve, reject) => {
+        console.log(`开始计算随机森林模型: ${component_drawing_no}`);
+        console.log(`参数:`, parameters);
+        
+        // 构造模型文件路径
+        const modelPath = path.join(__dirname, 'Random Forest Models', `${component_drawing_no}_rf_model.pkl`);
+        console.log(`模型文件路径: ${modelPath}`);
+        
+        // 检查模型文件是否存在
+        if (!fs.existsSync(modelPath)) {
+            console.error(`模型文件不存在: ${modelPath}`);
+            reject(new Error(`Model file not found: ${modelPath}`));
+            return;
+        }
+        
+        // 将参数转换为JSON字符串
+        const parametersJson = JSON.stringify(parameters);
+        const paramOrderJson = paramOrder ? JSON.stringify(paramOrder) : '';
+        console.log(`参数JSON: ${parametersJson}`);
+        console.log(`参数顺序: ${paramOrderJson}`);
+        
+        const scriptPath = path.join(__dirname, 'predict_rf.py');
+        console.log(`使用spawn调用Python脚本: ${scriptPath}`);
+        
+        // 构建命令行参数
+        const args = paramOrder ? 
+            [scriptPath, modelPath, parametersJson, paramOrderJson] :
+            [scriptPath, modelPath, parametersJson];
+        
+        const pythonProcess = spawn('python', args, {
+            cwd: __dirname
+        });
+        
+        let stdout = '';
+        let stderr = '';
+        
+        pythonProcess.stdout.on('data', (data) => {
+            stdout += data.toString();
+            console.log(`Python脚本stdout: ${data}`);
+        });
+        
+        pythonProcess.stderr.on('data', (data) => {
+            stderr += data.toString();
+            console.error(`Python脚本stderr: ${data}`);
+        });
+        
+        pythonProcess.on('close', (code) => {
+            console.log(`Python脚本退出，退出码: ${code}`);
+            console.log(`stdout: ${stdout}`);
+            console.log(`stderr: ${stderr}`);
+            
+            if (code !== 0) {
+                reject(new Error(`Python脚本执行失败，退出码: ${code}, 错误: ${stderr}`));
+                return;
+            }
+            
+            // 解析结果
+            const lines = stdout.trim().split('\n');
+            if (lines.length > 0) {
+                const prediction = parseFloat(lines[0]);
+                console.log(`预测结果: ${prediction}`);
+                if (isNaN(prediction)) {
+                    console.error(`无效的预测结果: ${lines[0]}`);
+                    reject(new Error('Invalid prediction result'));
+                    return;
+                }
+                resolve(prediction);
+            } else {
+                console.error(`没有返回预测结果`);
+                reject(new Error('No prediction result returned'));
+            }
+        });
+        
+        pythonProcess.on('error', (error) => {
+            console.error(`启动Python脚本失败: ${error}`);
+            reject(new Error(`Failed to start Python script: ${error.message}`));
+        });
+    });
+}
+
+// 服务端生成PDF
+app.post('/api/export-pdf', async (req, res) => {
+    try {
+        const { html, projectNo } = req.body || {};
+        const safeProjectNo = (projectNo && String(projectNo).trim()) ? String(projectNo).trim() : '未命名项目';
+        if (!html || typeof html !== 'string' || html.length < 10) {
+            return res.status(400).json({ error: 'Invalid HTML content' });
+        }
+        if (!puppeteer) {
+            try {
+                puppeteer = require('puppeteer-core');
+            } catch (e) {
+                puppeteer = require('puppeteer'); // 回退
+            }
+        }
+        const executablePath = getChromePath();
+        const launchOptions = executablePath ? { executablePath } : { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+        const browser = await puppeteer.launch(launchOptions);
+        const page = await browser.newPage();
+        await page.setContent(html, { waitUntil: 'networkidle0' });
+        await page.emulateMediaType('print');
+        const pdfUint8Array = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+            preferCSSPageSize: true
+        });
+        await browser.close();
+        
+        // 确保转换为Buffer (Puppeteer新版本可能返回Uint8Array)
+        const pdfBuffer = Buffer.from(pdfUint8Array);
+
+        // 验证生成的PDF (宽松模式：只要前1000字节包含%PDF即可)
+        const pdfHeaderIndex = pdfBuffer.indexOf('%PDF');
+        if (pdfBuffer.length < 100 || pdfHeaderIndex === -1 || pdfHeaderIndex > 1000) {
+             throw new Error(`Invalid PDF generated. Size: ${pdfBuffer.length}, Header index: ${pdfHeaderIndex}`);
+        }
+
+        // 强制二进制响应并禁用缓存
+        // 注意：Content-Disposition 中文件名必须编码，避免中文导致 Invalid character in header content 错误
+        const filename = encodeURIComponent(safeProjectNo + '轿厢重量.pdf');
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Length', pdfBuffer.length);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
+        // 直接写入Buffer并结束响应，避免Express自动处理
+        res.end(pdfBuffer);
+    } catch (error) {
+        console.error('Export PDF error:', error);
+        res.status(500).json({ error: 'Failed to export PDF: ' + error.message });
+    }
+});
+
+// 归档轿厢重量数据的API
+app.post('/api/archive', (req, res) => {
+    try {
+        const data = req.body;
+        const filePath = path.join(__dirname, '轿厢重量汇总.json');
+        let currentData = [];
+        
+        if (fs.existsSync(filePath)) {
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                if (fileContent.trim()) {
+                    const parsed = JSON.parse(fileContent);
+                    if (Array.isArray(parsed)) {
+                        currentData = parsed;
+                    } else {
+                        currentData = [parsed];
+                    }
+                }
+            } catch (e) {
+                console.error('Error reading archive file:', e);
+                // If error reading, start fresh or backup? For now, start fresh but maybe log warning
+            }
+        }
+        
+        // Add timestamp if not present
+        if (!data.timestamp) {
+            data.timestamp = new Date().toISOString();
+        }
+        
+        currentData.push(data);
+        
+        fs.writeFileSync(filePath, JSON.stringify(currentData, null, 2), 'utf8');
+        console.log('Data archived successfully');
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Archive error:', error);
+        res.status(500).json({ error: 'Failed to archive data: ' + error.message });
+    }
+});
+
+// 启动服务器（端口占用自动回退）
+function startServer(port, attempts = 0) {
+    const server = app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${port}`);
+    });
+    server.on('error', (err) => {
+        if (err && err.code === 'EADDRINUSE' && attempts < 10) {
+            const nextPort = port + 1;
+            console.warn(`Port ${port} in use, trying ${nextPort}...`);
+            startServer(nextPort, attempts + 1);
+        } else {
+            console.error('Failed to start server:', err);
+            process.exit(1);
+        }
+    });
+}
+startServer(DEFAULT_PORT);

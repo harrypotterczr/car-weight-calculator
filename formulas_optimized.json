@@ -1,0 +1,580 @@
+[
+  {
+    "component_drawing_no": "K125B6066",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.9131550443122496,
+    "formula": "随机森林模型",
+    "data_points": 10
+  },
+  {
+    "component_drawing_no": "K321B848",
+    "component_name": "门楣",
+    "parameters": [
+      "CH",
+      "HH",
+      "JJ"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.9529641573726698,
+    "formula": "随机森林模型",
+    "data_points": 27
+  },
+  {
+    "component_drawing_no": "K120B6112",
+    "model_type": "random_forest",
+    "r2_score": 0.9059196356275304,
+    "formula": "随机森林模型",
+    "data_points": 11,
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "K124B847",
+    "model_type": "random_forest",
+    "r2_score": 0.8941722974140363,
+    "formula": "随机森林模型",
+    "data_points": 10,
+    "component_name": "轿底滑轮组",
+    "parameters": [
+      "CA"
+    ]
+  },
+  {
+    "component_drawing_no": "K121B881",
+    "model_type": "random_forest",
+    "r2_score": 0.9871829928566983,
+    "formula": "随机森林模型",
+    "data_points": 30,
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "L321B663",
+    "component_name": "前壁/侧柱",
+    "parameters": [
+      "CA",
+      "CH",
+      "JJ"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.82446663127688,
+    "formula": "随机森林模型",
+    "data_points": 28
+  },
+  {
+    "component_drawing_no": "K320B6018",
+    "model_type": "polynomial",
+    "r2_score": 0.9740675752846802,
+    "formula": "unit_weight = 0.263108*CA + -0.049606*CB + -0.000055*CA^2 + -0.000007*CA CB + 0.000039*CB^2 + -131.900756",
+    "data_points": 11,
+    "component_name": "轿顶基板",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "V0740091\nM0750054",
+    "model_type": "polynomial",
+    "r2_score": 0.9740180785247465,
+    "formula": "unit_weight = 0.027267*CA + -0.498783*CH + -0.193200*载重 + 0.000010*CA^2 + -0.000025*CA CH + 0.000022*CA 载重 + 0.000092*CH^2 + 0.000082*CH 载重 + -0.000023*载重^2 + 873.160951",
+    "data_points": 16,
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "L321B657",
+    "component_name": "门楣",
+    "parameters": [
+      "CH",
+      "HH",
+      "JJ"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.978324786411163,
+    "formula": "随机森林模型",
+    "data_points": 76
+  },
+  {
+    "component_drawing_no": "K121B874",
+    "model_type": "random_forest",
+    "r2_score": 0.966477876788205,
+    "formula": "随机森林模型",
+    "data_points": 89,
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "K120B6122",
+    "model_type": "polynomial",
+    "r2_score": 0.9519846190460011,
+    "formula": "unit_weight = -2.540976*CA + -5.322059*CH + 6.484513*载重 + -0.000131*CA^2 + 0.001864*CA CH + -0.001819*CA 载重 + 0.000887*CH^2 + -0.002247*CH 载重 + 0.001189*载重^2 + 6011.145790",
+    "data_points": 14,
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "K321B845",
+    "model_type": "polynomial",
+    "r2_score": 0.9440721893566573,
+    "formula": "unit_weight = -0.481104*CA + -0.339817*CB + 0.000066*CA^2 + 0.000159*CA CB + 0.000028*CB^2 + 766.514923",
+    "data_points": 17,
+    "component_name": "轿顶基板",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "V0730074",
+    "model_type": "polynomial",
+    "r2_score": 0.9421795227905573,
+    "formula": "unit_weight = 0.142605*CA + 0.073141*CB + -0.000028*CA^2 + -0.000032*CA CB + -0.000002*CB^2 + -139.560400",
+    "data_points": 20,
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "K125B6074",
+    "model_type": "polynomial",
+    "r2_score": 0.922581477361657,
+    "formula": "unit_weight = 0.076589*CA + 0.146676*载重 + 0.000006*CA^2 + -0.000069*CA 载重 + -0.000015*载重^2 + 64.382629",
+    "data_points": 11,
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "V0710052",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.7125303828005313,
+    "formula": "随机森林模型",
+    "data_points": 16
+  },
+  {
+    "component_drawing_no": "K125B853",
+    "model_type": "random_forest",
+    "r2_score": 0.910522221333388,
+    "formula": "随机森林模型",
+    "data_points": 13,
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "S321B835",
+    "component_name": "门楣",
+    "parameters": [
+      "CH",
+      "HH",
+      "JJ"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8929644804339079,
+    "formula": "随机森林模型",
+    "data_points": 31
+  },
+  {
+    "component_drawing_no": "K121B877",
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.9005767587784046,
+    "formula": "随机森林模型",
+    "data_points": 27
+  },
+  {
+    "component_drawing_no": "K321B896",
+    "model_type": "polynomial",
+    "r2_score": 0.8976803703683567,
+    "formula": "unit_weight = -0.121165*CA + -2.538151*CH + 0.000004*CA^2 + 0.000047*CA CH + 0.000486*CH^2 + 3325.339555",
+    "data_points": 10,
+    "component_name": "侧柱",
+    "parameters": [
+      "CA",
+      "CH",
+      "JJ"
+    ]
+  },
+  {
+    "component_drawing_no": "S121B827",
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8970549605844408,
+    "formula": "随机森林模型",
+    "data_points": 72
+  },
+  {
+    "component_drawing_no": "S125B803",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8962762308792589,
+    "formula": "随机森林模型",
+    "data_points": 54
+  },
+  {
+    "component_drawing_no": "K125B601",
+    "model_type": "polynomial",
+    "r2_score": 0.8867723409577799,
+    "formula": "unit_weight = -0.096584*CA + 0.046634*载重 + 0.000019*CA^2 + 0.000032*CA 载重 + -0.000035*载重^2 + 219.305088",
+    "data_points": 10,
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "S321B832",
+    "component_name": "轿顶基板",
+    "parameters": [
+      "CA",
+      "CB"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8845116091715655,
+    "formula": "随机森林模型",
+    "data_points": 46
+  },
+  {
+    "component_drawing_no": "V0710247",
+    "model_type": "polynomial",
+    "r2_score": 0.8818269212142471,
+    "formula": "unit_weight = -0.065761*CA + 0.193947*载重 + 0.000004*CA^2 + 0.000081*CA 载重 + -0.000181*载重^2 + 57.103640",
+    "data_points": 20,
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "L121B657",
+    "model_type": "random_forest",
+    "r2_score": 0.9557561158468875,
+    "formula": "随机森林模型",
+    "data_points": 163,
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "K121B833",
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8549460231312118,
+    "formula": "随机森林模型",
+    "data_points": 31
+  },
+  {
+    "component_drawing_no": "L321B603",
+    "model_type": "polynomial",
+    "r2_score": 0.8670062835423529,
+    "formula": "unit_weight = 0.077960*CA + 0.057713*CB + -0.000019*CA^2 + 0.000009*CA CB + -0.000011*CB^2 + -74.251117",
+    "data_points": 22,
+    "component_name": "轿顶基板",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "L121B660",
+    "model_type": "random_forest",
+    "r2_score": 0.8966772728680891,
+    "formula": "随机森林模型",
+    "data_points": 15,
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "K321B841",
+    "component_name": "轿顶基板",
+    "parameters": [
+      "CA",
+      "CB"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8543970046730448,
+    "formula": "随机森林模型",
+    "data_points": 23
+  },
+  {
+    "component_drawing_no": "S321B836",
+    "component_name": "侧柱",
+    "parameters": [
+      "CA",
+      "CH",
+      "JJ"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8462707625321354,
+    "formula": "随机森林模型",
+    "data_points": 31
+  },
+  {
+    "component_drawing_no": "L321B602",
+    "model_type": "polynomial",
+    "r2_score": 0.8363667457892211,
+    "formula": "unit_weight = -0.014736*CA + 0.007893*CB + 0.000015*CA^2 + 0.000004*CA CB + 0.000005*CB^2 + 29.111347",
+    "data_points": 186,
+    "component_name": "轿顶基板",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "K121B6639",
+    "model_type": "random_forest",
+    "r2_score": 0.8924682838709759,
+    "formula": "随机森林模型",
+    "data_points": 29,
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ]
+  },
+  {
+    "component_drawing_no": "K120B6073",
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.8200168060820024,
+    "formula": "随机森林模型",
+    "data_points": 48
+  },
+  {
+    "component_drawing_no": "L321B660",
+    "model_type": "random_forest",
+    "r2_score": 0.8997893998063892,
+    "formula": "随机森林模型",
+    "data_points": 12,
+    "component_name": "前壁/侧柱",
+    "parameters": [
+      "CA",
+      "CH",
+      "JJ"
+    ]
+  },
+  {
+    "component_drawing_no": "K121B647",
+    "model_type": "polynomial",
+    "r2_score": 0.8125953854414468,
+    "formula": "unit_weight = -0.740558*CA + -7.390774*CH + 2.066565*载重 + 0.000019*CA^2 + 0.000220*CA CH + 0.000320*CA 载重 + 0.001723*CH^2 + -0.001125*CH 载重 + 0.000101*载重^2 + 8352.457034",
+    "data_points": 20,
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ]
+  },
+  {
+    "component_drawing_no": "K125B631",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.7786400795747721,
+    "formula": "随机森林模型",
+    "data_points": 20
+  },
+  {
+    "component_drawing_no": "K125B6035",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.7858386725466878,
+    "formula": "随机森林模型",
+    "data_points": 63
+  },
+  {
+    "component_drawing_no": "K124B851",
+    "component_name": "轿底滑轮组",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.7361115676659107,
+    "formula": "随机森林模型",
+    "data_points": 55
+  },
+  {
+    "component_drawing_no": "K120B6069",
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.758468639320976,
+    "formula": "随机森林模型",
+    "data_points": 79
+  },
+  {
+    "component_drawing_no": "K121B974",
+    "component_name": "轿厢底 （不包括地板）",
+    "parameters": [
+      "CA",
+      "CB"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.6329321758118692,
+    "formula": "随机森林模型",
+    "data_points": 16
+  },
+  {
+    "component_drawing_no": "K120B6064",
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.5897365118183122,
+    "formula": "随机森林模型",
+    "data_points": 13
+  },
+  {
+    "component_drawing_no": "K124B829",
+    "component_name": "轿底滑轮组",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.6608094100508642,
+    "formula": "随机森林模型",
+    "data_points": 42
+  },
+  {
+    "component_drawing_no": "K121B800",
+    "component_name": "轿厢架装配 含轿顶护栏",
+    "parameters": [
+      "CA",
+      "CH",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.600770933742718,
+    "formula": "随机森林模型",
+    "data_points": 10
+  },
+  {
+    "component_drawing_no": "K125B6044",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "linear",
+    "r2_score": 0.520198715618541,
+    "formula": "unit_weight = 0.020000*CA + 0.120000*载重 + -18.600000",
+    "data_points": 13
+  },
+  {
+    "component_drawing_no": "K125B6039",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.5067304637088694,
+    "formula": "随机森林模型",
+    "data_points": 84
+  },
+  {
+    "component_drawing_no": "K125B819",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.5078641667082671,
+    "formula": "随机森林模型",
+    "data_points": 33
+  },
+  {
+    "component_drawing_no": "S125B800",
+    "component_name": "安全钳装置 含钳口",
+    "parameters": [
+      "CA",
+      "载重"
+    ],
+    "model_type": "random_forest",
+    "r2_score": 0.2899555774624708,
+    "formula": "随机森林模型",
+    "data_points": 10
+  }
+]

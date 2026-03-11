@@ -1,0 +1,43 @@
+{
+  "有机房": [
+    { "key": "cab_wall", "name": "轿壁" },
+    { "key": "door_header", "name": "门楣" },
+    { "key": "front_side_column", "name": "前壁/侧柱" },
+    { "key": "door_operator", "name": "轿门机" },
+    { "key": "car_floor", "name": "轿厢底" },
+    { "key": "top_base", "name": "轿顶基板" },
+    { "key": "cop", "name": "COP", "defaultUnit": 15 },
+    { "key": "car_frame", "name": "轿厢架含护栏" },
+    { "key": "safety_gear", "name": "安全钳装置含钳口" },
+    { "key": "guide_shoe", "name": "轿厢导靴", "defaultQty": 4 },
+    { "key": "top_box", "name": "轿顶盒", "defaultUnit": 15 },
+    { "key": "ceiling", "name": "吊顶", "formula": "ceiling" }
+  ],
+  "无机房": [
+    { "key": "cab_wall", "name": "轿壁" },
+    { "key": "door_header", "name": "门楣" },
+    { "key": "front_side_column", "name": "前壁/侧柱" },
+    { "key": "door_operator", "name": "轿门机" },
+    { "key": "car_floor", "name": "轿厢底" },
+    { "key": "top_base", "name": "轿顶基板" },
+    { "key": "cop", "name": "COP", "defaultUnit": 15 },
+    { "key": "car_frame", "name": "轿厢架含护栏" },
+    { "key": "pulley_group", "name": "轿底滑轮组" },
+    { "key": "safety_gear", "name": "安全钳装置含钳口" },
+    { "key": "guide_shoe", "name": "轿厢导靴", "defaultQty": 4 },
+    { "key": "top_box", "name": "轿顶盒", "defaultUnit": 15 },
+    { "key": "ceiling", "name": "吊顶", "formula": "ceiling" }
+  ],
+  "PMCCLC": [
+    { "key": "entire_car", "name": "整个轿厢" },
+    { "key": "door_operator", "name": "轿门机" },
+    { "key": "cop", "name": "COP" },
+    { "key": "car_frame_assy", "name": "轿厢架含反绳轮" },
+    { "key": "car_bottom_bracket", "name": "轿底托架" },
+    { "key": "safety_gear_device", "name": "安全钳装置含钳口" },
+    { "key": "tie_rod", "name": "拉杆挂钩" },
+    { "key": "accessories", "name": "附件" },
+    { "key": "guide_shoe", "name": "轿厢导靴", "defaultQty": 4 },
+    { "key": "top_box", "name": "轿顶盒" }
+  ]
+}

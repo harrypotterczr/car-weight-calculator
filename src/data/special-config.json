@@ -1,0 +1,5 @@
+[
+  { "key": "floor", "name": "地板", "formula": "floor" },
+  { "key": "handrail", "name": "扶手" },
+  { "key": "other", "name": "其他" }
+]
