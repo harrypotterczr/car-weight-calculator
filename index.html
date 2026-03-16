@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轿厢重量计算器 v2.01</title>
+    <title>轿厢重量计算器 v2.02</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -2785,6 +2785,16 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             const container = document.querySelector(".page");
             container.addEventListener("input", function (event) {
                 const target = event.target;
+                
+                // 如果用户手动修改了重量，标记为手动模式
+                if (target.dataset && target.dataset.role === "unit") {
+                    if (target.value === "") {
+                        target.dataset.manual = "false";
+                    } else {
+                        target.dataset.manual = "true";
+                    }
+                }
+
                 if (target.classList.contains("field-input") || target.classList.contains("field-select")) {
                     recalculateAll();
                 }
@@ -2857,80 +2867,78 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
 
                 if (!unitInput || !qtyInput || !totalCell) return;
 
-                // --- Special Logic for Door Operator ---
-                if (section === "basic" && key === "door_operator") {
-                    const mfr = document.getElementById("door-operator-mfr").value;
-                    const opType = document.getElementById("opening-type").value;
-                    const jj = parseNumber(document.getElementById("param-JJ").value);
-                    const sw = parseNumber(document.getElementById("param-SW").value);
-                    
-                    const weight = getDoorOperatorWeight(mfr, opType, jj, sw);
-                    if (weight > 0) {
-                        unitInput.value = weight.toFixed(2);
-                        unitInput.readOnly = true;
-                        unitInput.title = `自动匹配: ${mfr} ${opType} JJ=${jj} ${sw ? "SW="+sw : ""}`;
-                    } else {
-                        unitInput.readOnly = false;
-                        unitInput.title = "";
-                    }
-                }
-
-                // --- Special Logic for Floor ---
-                if (section === "special" && key === "floor") {
-                    const materialSelect = row.querySelector("select[data-role='floor-material']");
-                    let density = 2.5;
-                    if (materialSelect) {
-                        const opt = materialSelect.selectedOptions[0];
-                        if (opt && opt.dataset.density) {
-                            density = parseNumber(opt.dataset.density);
+                // 如果是手动输入的，则不执行自动计算逻辑
+                if (unitInput.dataset.manual === "true") {
+                    unitInput.readOnly = false;
+                } else {
+                    // --- Special Logic for Door Operator ---
+                    if (section === "basic" && key === "door_operator") {
+                        const mfr = document.getElementById("door-operator-mfr").value;
+                        const opType = document.getElementById("opening-type").value;
+                        const jj = parseNumber(document.getElementById("param-JJ").value);
+                        const sw = parseNumber(document.getElementById("param-SW").value);
+                        
+                        const weight = getDoorOperatorWeight(mfr, opType, jj, sw);
+                        if (weight > 0) {
+                            unitInput.value = weight.toFixed(2);
+                            unitInput.title = `自动匹配: ${mfr} ${opType} JJ=${jj} ${sw ? "SW="+sw : ""}`;
+                        } else {
+                            unitInput.title = "";
                         }
                     }
-                    const thickness = parseNumber(document.getElementById("floor-thickness").value);
-                    let unit = 0;
-                    if (density && thickness && CA && CB) {
-                        unit = density * thickness * CA * CB / 1000000;
-                    }
-                    unitInput.value = unit ? unit.toFixed(2) : "";
-                }
 
-                // --- Special Logic for Ceiling (Basic) ---
-                if (section === "basic" && key === "ceiling") {
-                    let unit = 0;
-                    if (CA && CB) {
-                        unit = CA * CB * 17 / 1000000;
+                    // --- Special Logic for Floor ---
+                    if (section === "special" && key === "floor") {
+                        const materialSelect = row.querySelector("select[data-role='floor-material']");
+                        let density = 2.5;
+                        if (materialSelect) {
+                            const opt = materialSelect.selectedOptions[0];
+                            if (opt && opt.dataset.density) {
+                                density = parseNumber(opt.dataset.density);
+                            }
+                        }
+                        const thickness = parseNumber(document.getElementById("floor-thickness").value);
+                        let unit = 0;
+                        if (density && thickness && CA && CB) {
+                            unit = density * thickness * CA * CB / 1000000;
+                        }
+                        unitInput.value = unit ? unit.toFixed(2) : "";
                     }
-                    unitInput.value = unit ? unit.toFixed(2) : "";
-                }
 
-                // --- Special Logic for Cab Wall (Basic) ---
-                if (section === "basic" && key === "cab_wall") {
-                    // Only calculate if we have a valid type
-                    if (carType && CA && CB && CH && carWallThk) {
-                         const totalWallWeight = calculateWallWeight(carType, CA, CB, CH, carWallThk, isThroughCar);
-                         unitInput.value = totalWallWeight > 0 ? totalWallWeight.toFixed(2) : "";
-                         // Add a visual indicator or make it readonly? 
-                         // For now just update value. The user can still override if they really want to, 
-                         // but it will be overwritten on next recalc.
-                         // Maybe set readonly to true if auto-calculated?
-                         unitInput.readOnly = true;
-                         unitInput.title = isThroughCar ? "贯通梯：仅计算两侧壁 (L2)" : "非贯通：后壁 (L1) + 两侧壁 (L2)";
-                    } else {
-                         unitInput.readOnly = false;
-                         unitInput.title = "";
+                    // --- Special Logic for Ceiling (Basic) ---
+                    if (section === "basic" && key === "ceiling") {
+                        let unit = 0;
+                        if (CA && CB) {
+                            unit = CA * CB * 17 / 1000000;
+                        }
+                        unitInput.value = unit ? unit.toFixed(2) : "";
                     }
-                }
 
-                // --- Special Logic for Front Wall/Side Column (Basic) ---
-                if (section === "basic" && key === "front_side_column") {
-                    if (carType && CA && CH && JJ && carWallThk) {
-                        const totalFrontWeight = calculateFrontWallWeight(carType, CA, CH, JJ, carWallThk);
-                        unitInput.value = totalFrontWeight > 0 ? totalFrontWeight.toFixed(2) : "";
-                        unitInput.readOnly = true;
-                        unitInput.title = `自动计算: 前壁 (W_front = (CA+X-JJ)/2) * 2${(CA + 100 - JJ) / 2 <= 100 ? " (W_front<=100 -> *2)" : ""}`;
-                    } else {
-                        unitInput.readOnly = false;
-                        unitInput.title = "";
+                    // --- Special Logic for Cab Wall (Basic) ---
+                    if (section === "basic" && key === "cab_wall") {
+                        // Only calculate if we have a valid type
+                        if (carType && CA && CB && CH && carWallThk) {
+                             const totalWallWeight = calculateWallWeight(carType, CA, CB, CH, carWallThk, isThroughCar);
+                             unitInput.value = totalWallWeight > 0 ? totalWallWeight.toFixed(2) : "";
+                             unitInput.title = isThroughCar ? "贯通梯：仅计算两侧壁 (L2)" : "非贯通：后壁 (L1) + 两侧壁 (L2)";
+                        } else {
+                             unitInput.title = "";
+                        }
                     }
+
+                    // --- Special Logic for Front Wall/Side Column (Basic) ---
+                    if (section === "basic" && key === "front_side_column") {
+                        if (carType && CA && CH && JJ && carWallThk) {
+                            const totalFrontWeight = calculateFrontWallWeight(carType, CA, CH, JJ, carWallThk);
+                            unitInput.value = totalFrontWeight > 0 ? totalFrontWeight.toFixed(2) : "";
+                            unitInput.title = `自动计算: 前壁 (W_front = (CA+X-JJ)/2) * 2${(CA + 100 - JJ) / 2 <= 100 ? " (W_front<=100 -> *2)" : ""}`;
+                        } else {
+                            unitInput.title = "";
+                        }
+                    }
+                    
+                    // 确保非手动模式下也是可以编辑的
+                    unitInput.readOnly = false;
                 }
 
                 const unit = parseNumber(unitInput.value);
@@ -3251,6 +3259,7 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 } else {
                     const unitInput = row.querySelector("input[data-role='unit']");
                     unitInput.value = weight.toFixed(2);
+                    unitInput.dataset.manual = "true"; // 设置为手动模式，防止被自动计算覆盖
                     recalculateAll();
                 }
                 backdrop.style.display = "none";
