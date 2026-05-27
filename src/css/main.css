@@ -118,6 +118,8 @@ body {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr);
     gap: 18px;
 }
+.card-project { order: -1; }
+.card-detail { order: 1; }
 @media (max-width: 960px) {
     body {
         padding: 16px;

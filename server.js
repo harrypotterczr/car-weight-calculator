@@ -340,6 +340,102 @@ app.post('/api/export-pdf', async (req, res) => {
     }
 });
 
+// 查询归档数据中是否存在指定项目号
+app.get('/api/archive/check/:projectNo', (req, res) => {
+    try {
+        const projectNo = decodeURIComponent(req.params.projectNo).trim();
+        const filePath = path.join(__dirname, '轿厢重量汇总.json');
+        let currentData = [];
+
+        if (fs.existsSync(filePath)) {
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                if (fileContent.trim()) {
+                    const parsed = JSON.parse(fileContent);
+                    if (Array.isArray(parsed)) {
+                        currentData = parsed;
+                    } else {
+                        currentData = [parsed];
+                    }
+                }
+            } catch (e) {
+                // ignore read errors
+            }
+        }
+
+        const exists = currentData.some(item =>
+            item.projectParams && item.projectParams.projectNo &&
+            item.projectParams.projectNo.trim() === projectNo
+        );
+        res.json({ exists, count: currentData.length });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to check archive: ' + error.message });
+    }
+});
+
+// 获取所有归档项目列表（仅返回项目号和摘要信息）
+app.get('/api/archive/list', (req, res) => {
+    try {
+        const filePath = path.join(__dirname, '轿厢重量汇总.json');
+        let currentData = [];
+
+        if (fs.existsSync(filePath)) {
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                if (fileContent.trim()) {
+                    const parsed = JSON.parse(fileContent);
+                    if (Array.isArray(parsed)) {
+                        currentData = parsed;
+                    } else {
+                        currentData = [parsed];
+                    }
+                }
+            } catch (e) {
+                // ignore read errors
+            }
+        }
+
+        const list = currentData.map((item, idx) => ({
+            index: idx,
+            projectNo: item.projectParams ? item.projectParams.projectNo : '',
+            elevatorModel: item.projectParams ? item.projectParams.elevatorModel : '',
+            timestamp: item.timestamp || '',
+            totalWeight: item.totalWeight || 0
+        }));
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to list archive: ' + error.message });
+    }
+});
+
+// 获取所有归档的完整数据
+app.get('/api/archive/all', (req, res) => {
+    try {
+        const filePath = path.join(__dirname, '轿厢重量汇总.json');
+        let currentData = [];
+
+        if (fs.existsSync(filePath)) {
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                if (fileContent.trim()) {
+                    const parsed = JSON.parse(fileContent);
+                    if (Array.isArray(parsed)) {
+                        currentData = parsed;
+                    } else {
+                        currentData = [parsed];
+                    }
+                }
+            } catch (e) {
+                // ignore read errors
+            }
+        }
+
+        res.json(currentData);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get archive data: ' + error.message });
+    }
+});
+
 // 归档轿厢重量数据的API
 app.post('/api/archive', (req, res) => {
     try {
@@ -369,7 +465,22 @@ app.post('/api/archive', (req, res) => {
             data.timestamp = new Date().toISOString();
         }
         
-        currentData.push(data);
+        // Check if project with same projectNo already exists, replace if so
+        const projectNo = data.projectParams && data.projectParams.projectNo ? data.projectParams.projectNo.trim() : '';
+        let replaced = false;
+        if (projectNo) {
+            const existingIdx = currentData.findIndex(item =>
+                item.projectParams && item.projectParams.projectNo &&
+                item.projectParams.projectNo.trim() === projectNo
+            );
+            if (existingIdx !== -1) {
+                currentData[existingIdx] = data;
+                replaced = true;
+            }
+        }
+        if (!replaced) {
+            currentData.push(data);
+        }
         
         fs.writeFileSync(filePath, JSON.stringify(currentData, null, 2), 'utf8');
         console.log('Data archived successfully');

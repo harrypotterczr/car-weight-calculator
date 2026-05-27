@@ -94,7 +94,8 @@
 		padding: 20px;
 	}
 	.layout {
-		display: block;
+		display: flex !important;
+		flex-direction: column !important;
 	}
 	.card {
 		box-shadow: none !important;
@@ -106,13 +107,14 @@
 	.card::before {
 		display: none !important;
 	}
-	.card-project {
+	.card-detail {
+		order: -1 !important;
 		page-break-after: always;
 		min-height: auto;
 		display: block !important;
 	}
-	.card-detail {
-		page-break-before: always !important;
+	.card-project {
+		order: 1 !important;
 		page-break-inside: avoid;
 		min-height: auto;
 		display: block !important;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轿厢重量计算器 v2.02</title>
+    <title>轿厢重量计算器 v2.04</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -126,6 +126,8 @@
             grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr);
             gap: 18px;
         }
+        .card-project { order: -1; }
+        .card-detail { order: 1; }
         @media (max-width: 960px) {
             body {
                 padding: 16px;
@@ -595,6 +597,75 @@
             height: 14px;
             animation: spin 0.9s linear infinite;
         }
+        .import-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .import-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(55,65,81,0.8);
+            background: rgba(15,23,42,0.6);
+            cursor: pointer;
+            transition: border-color 120ms ease, background 120ms ease;
+            font-size: 13px;
+            color: #e5e7eb;
+        }
+        .import-item:hover {
+            border-color: rgba(129,140,248,0.6);
+            background: rgba(129,140,248,0.08);
+        }
+        .import-item.selected {
+            border-color: rgba(129,140,248,0.9);
+            background: rgba(129,140,248,0.15);
+            box-shadow: 0 0 0 1px rgba(129,140,248,0.4);
+        }
+        .import-item .radio-circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(107,114,128,0.8);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 120ms ease;
+        }
+        .import-item.selected .radio-circle {
+            border-color: #818cf8;
+        }
+        .import-item.selected .radio-circle::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #818cf8;
+        }
+        .import-item .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .import-item .item-project-no {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .import-item .item-meta {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        .import-empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 24px 0;
+            font-size: 13px;
+        }
         .suggestions {
             position: fixed;
             z-index: 70;
@@ -765,7 +836,8 @@
 				padding: 20px;
 			}
 			.layout {
-				display: block;
+				display: flex !important;
+				flex-direction: column !important;
 			}
 			.card {
 				box-shadow: none !important;
@@ -777,13 +849,14 @@
 			.card::before {
 				display: none !important;
 			}
-			.card-project {
+			.card-detail {
+				order: -1 !important;
 				page-break-after: always;
 				min-height: auto;
 				display: block !important;
 			}
-			.card-detail {
-				page-break-before: always !important;
+			.card-project {
+				order: 1 !important;
 				page-break-inside: avoid;
 				min-height: auto;
 				display: block !important;
@@ -898,11 +971,84 @@
             <div class="top-actions">
                 <button id="lang-toggle" class="ghost-button" onclick="toggleLanguage()">En</button>
                 <button id="export-pdf" class="ghost-button ghost-button-primary" data-i18n="export_pdf">导出 PDF</button>
+                <button id="import-data-btn" class="ghost-button" data-i18n="import_data">导入数据</button>
                 <button id="archive-btn" class="ghost-button" data-i18n="save_record">轿厢重量归档</button>
             </div>
         </header>
 
         <main class="layout">
+            <section class="card card-detail">
+                <div class="card-inner">
+                    <h1 class="print-title print-only" data-i18n="weight_details_title">轿厢重量明细</h1>
+                    <div class="card-header">
+                        <div class="card-title" data-i18n="weight_details_title">轿厢重量明细</div>
+                        <div class="badge"><span class="badge-dot"></span><span data-i18n="formula_model_driven">公式 + 模型驱动</span></div>
+                    </div>
+                    <div class="summary-strip">
+                        <div class="summary-left">
+                            <div class="summary-title" id="summary-title-text">轿厢总重量</div>
+                            <div class="summary-pill-row">
+                                <div class="summary-pill"><span data-i18n="summary_machine_room">机房类型</span><span id="summary-machine-room">有机房</span></div>
+                                <div class="summary-pill"><span data-i18n="summary_comp_factor">补偿系数</span><span id="summary-factor">0.06</span></div>
+                                <div class="summary-pill"><span data-i18n="summary_main_params">主参数</span><span id="summary-main-params">—</span></div>
+                            </div>
+                        </div>
+                        <div class="summary-weight">
+                            <div class="summary-weight-label">Car Mass</div>
+                            <div class="summary-weight-value" id="total-car-weight">0.00</div>
+                            <div class="summary-weight-unit">kg</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title-row">
+                        <div class="section-title" data-i18n="basic_components">基础部件</div>
+                        <div class="section-tag" data-i18n="basic_config_desc">所有数量默认 1，可手动调整</div>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-head">
+                            <div class="cell-label" data-i18n="comp_name">部件名称</div>
+                            <div class="cell-drawing" data-i18n="spec_drawing">图号/规格</div>
+                            <div class="cell-unit" data-i18n="unit_weight">单重(kg)</div>
+                            <div class="cell-qty" data-i18n="qty">数量</div>
+                            <div class="cell-total" data-i18n="total_weight">总重(kg)</div>
+                            <div class="cell-actions" data-i18n="action">操作</div>
+                        </div>
+                        <div id="basic-body"></div>
+                        <div class="table-footer-add">
+                            <button id="add-basic-row" class="add-row-btn" title="添加自定义部件">+</button>
+                        </div>
+                    </div>
+
+                    <div class="section-title-row">
+                        <div class="section-title" data-i18n="special_options">特殊选配</div>
+                        <div class="section-tag" data-i18n="special_options_desc">地板 / 扶手 / 其他</div>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-head">
+                            <div class="cell-label" data-i18n="comp_name">部件名称</div>
+                            <div class="cell-drawing" data-i18n="spec_drawing">图号/规格</div>
+                            <div class="cell-unit" data-i18n="unit_weight">单重(kg)</div>
+                            <div class="cell-qty" data-i18n="qty">数量</div>
+                            <div class="cell-total" data-i18n="total_weight">总重(kg)</div>
+                            <div class="cell-actions" data-i18n="action">操作</div>
+                        </div>
+                        <div id="special-body"></div>
+                        <div class="table-footer-add">
+                            <button id="add-custom-row" class="add-row-btn" title="添加自定义部件">+</button>
+                        </div>
+                    </div>
+
+                    <div class="summary-footer">
+                        <div><span data-i18n="basic_sum_label">基本配置质量合计:</span> <span id="basic-sum">0.00</span> kg</div>
+                        <div><span data-i18n="special_sum_label">特殊部件质量合计:</span> <span id="special-sum">0.00</span> kg</div>
+                    </div>
+                    <div class="print-footer">
+                        <div>第 1 页 / 共 2 页</div>
+                        <div class="footer-right print-date"></div>
+                    </div>
+                </div>
+            </section>
+
             <section class="card card-project">
                 <div class="card-inner">
                     <h1 class="print-title print-only" data-i18n="print_title">轿厢重量计算 - 项目参数</h1>
@@ -1027,80 +1173,8 @@
                     </div>
                 </div>
                 <div class="print-footer">
-                    <div>第 1 页 / 共 2 页</div>
+                    <div>第 2 页 / 共 2 页</div>
                     <div class="footer-right print-date"></div>
-                </div>
-            </section>
-
-            <section class="card card-detail">
-                <div class="card-inner">
-                    <h1 class="print-title print-only" data-i18n="weight_details_title">轿厢重量明细</h1>
-                    <div class="card-header">
-                        <div class="card-title" data-i18n="weight_details_title">轿厢重量明细</div>
-                        <div class="badge"><span class="badge-dot"></span><span data-i18n="formula_model_driven">公式 + 模型驱动</span></div>
-                    </div>
-                    <div class="summary-strip">
-                        <div class="summary-left">
-                            <div class="summary-title" data-i18n="total_weight_label">轿厢总重量</div>
-                            <div class="summary-pill-row">
-                                <div class="summary-pill"><span data-i18n="summary_machine_room">机房类型</span><span id="summary-machine-room">有机房</span></div>
-                                <div class="summary-pill"><span data-i18n="summary_comp_factor">补偿系数</span><span id="summary-factor">0.06</span></div>
-                                <div class="summary-pill"><span data-i18n="summary_main_params">主参数</span><span id="summary-main-params">—</span></div>
-                            </div>
-                        </div>
-                        <div class="summary-weight">
-                            <div class="summary-weight-label">Car Mass</div>
-                            <div class="summary-weight-value" id="total-car-weight">0.00</div>
-                            <div class="summary-weight-unit">kg</div>
-                        </div>
-                    </div>
-
-                    <div class="section-title-row">
-                        <div class="section-title" data-i18n="basic_config_title">基本配置</div>
-                        <div class="section-tag" data-i18n="basic_config_desc">所有数量默认 1，可手动调整</div>
-                    </div>
-                    <div class="table-shell">
-                        <div class="table-head">
-                            <div data-i18n="table_comp">部件</div>
-                            <div data-i18n="table_drawing">图号</div>
-                            <div data-i18n="table_unit_weight">单重 kg</div>
-                            <div data-i18n="table_qty">数量</div>
-                            <div data-i18n="table_total_weight">总重 kg</div>
-                            <div data-i18n="table_action">操作</div>
-                        </div>
-                        <div id="basic-body" class="table-body"></div>
-                        <div class="table-footer-add">
-                            <button type="button" class="add-row-btn" onclick="addCustomRow('basic')">+</button>
-                        </div>
-                    </div>
-
-                    <div class="section-title-row" style="margin-top: 14px;">
-                        <div class="section-title" data-i18n="special_config_title">特殊部件</div>
-                        <div class="section-tag" data-i18n="special_options_desc">地板 / 扶手 / 其他</div>
-                    </div>
-                    <div class="table-shell">
-                        <div class="table-head">
-                            <div data-i18n="table_comp">部件</div>
-                            <div data-i18n="table_spec">规格</div>
-                            <div data-i18n="table_unit_weight">单重 kg</div>
-                            <div data-i18n="table_qty">数量</div>
-                            <div data-i18n="table_total_weight">总重 kg</div>
-                            <div data-i18n="table_action">操作</div>
-                        </div>
-                        <div id="special-body" class="table-body"></div>
-                        <div class="table-footer-add">
-                            <button type="button" class="add-row-btn" onclick="addCustomRow('special')">+</button>
-                        </div>
-                    </div>
-
-                    <div class="summary-footer">
-                        <div><span data-i18n="basic_sum_label">基本配置质量合计:</span> <span id="basic-sum">0.00</span> kg</div>
-                        <div><span data-i18n="special_sum_label">特殊部件质量合计:</span> <span id="special-sum">0.00</span> kg</div>
-                    </div>
-                    <div class="print-footer">
-                        <div>第 2 页 / 共 2 页</div>
-                        <div class="footer-right print-date"></div>
-                    </div>
                 </div>
             </section>
         </main>
@@ -1126,6 +1200,47 @@
                 </div>
                 <button type="button" class="secondary-btn" id="modal-cancel" data-i18n="cancel">取消</button>
                 <button type="button" class="primary-btn" id="modal-apply" data-i18n="calc_and_apply">计算并填入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入数据模态框 -->
+    <div id="import-modal-backdrop" class="modal-backdrop">
+        <div class="modal" style="max-width:520px;">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" data-i18n="import_data">导入数据</div>
+                    <div class="field-note" data-i18n="import_data_hint">从归档数据中选择项目号以回填</div>
+                </div>
+                <button class="modal-close" type="button" id="import-modal-close">×</button>
+            </div>
+            <div style="margin-bottom:10px;">
+                <input id="import-search" class="field-input" type="text" placeholder="搜索项目号..." data-i18n-placeholder="search_project" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div id="import-list" class="import-list" style="max-height:320px;overflow-y:auto;"></div>
+            <div id="import-modal-error" class="error-text" style="display:none;"></div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" id="import-modal-cancel" data-i18n="cancel">取消</button>
+                <button type="button" class="primary-btn" id="import-modal-confirm" data-i18n="confirm_import">确认导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 归档二次确认模态框 -->
+    <div id="confirm-modal-backdrop" class="modal-backdrop">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" data-i18n="confirm_overwrite">确认覆盖</div>
+                </div>
+                <button class="modal-close" type="button" id="confirm-modal-close">×</button>
+            </div>
+            <div style="padding:10px 0;font-size:14px;color:#e5e7eb;line-height:1.7;">
+                <span data-i18n="overwrite_warning">该项目的数据已存在，确认归档将替换旧数据。是否继续？</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" id="confirm-modal-cancel" data-i18n="cancel">取消</button>
+                <button type="button" class="primary-btn" id="confirm-modal-ok" data-i18n="confirm" style="background:linear-gradient(135deg,#f87171,#fb923c);box-shadow:0 14px 35px rgba(220,38,38,0.6);">确认覆盖</button>
             </div>
         </div>
     </div>
@@ -1255,6 +1370,8 @@ body {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr);
     gap: 18px;
 }
+.card-project { order: -1; }
+.card-detail { order: 1; }
 @media (max-width: 960px) {
     body {
         padding: 16px;
@@ -1900,7 +2017,8 @@ body {
 		padding: 20px;
 	}
 	.layout {
-		display: block;
+		display: flex !important;
+		flex-direction: column !important;
 	}
 	.card {
 		box-shadow: none !important;
@@ -1912,13 +2030,14 @@ body {
 	.card::before {
 		display: none !important;
 	}
-	.card-project {
+	.card-detail {
+		order: -1 !important;
 		page-break-after: always;
 		min-height: auto;
 		display: block !important;
 	}
-	.card-detail {
-		page-break-before: always !important;
+	.card-project {
+		order: 1 !important;
 		page-break-inside: avoid;
 		min-height: auto;
 		display: block !important;
@@ -2963,6 +3082,16 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             document.getElementById("summary-machine-room").textContent = currentMachineRoom === "有机房" ? t('mr') : (currentMachineRoom === "无机房" ? t('mrl') : currentMachineRoom);
             document.getElementById("summary-factor").textContent = factor.toFixed(2);
             document.getElementById("summary-main-params").textContent = getMainParamsSummary();
+
+            // 动态更新标题：项目号 + 轿厢总重量
+            updateSummaryTitle();
+        }
+
+        function updateSummaryTitle() {
+            const projectNo = document.getElementById("project-no").value.trim();
+            const titleEl = document.getElementById("summary-title-text");
+            const label = currentLang === 'en' ? 'Total Weight' : '轿厢总重量';
+            titleEl.textContent = projectNo ? `${projectNo} ${label}` : label;
         }
 
         function showToast(message, isError) {
@@ -3463,6 +3592,22 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             document.getElementById("export-pdf").addEventListener("click", function () {
                 exportPDFServer();
             });
+
+            document.getElementById("add-basic-row").addEventListener("click", function () {
+                addCustomRow("basic");
+            });
+
+            document.getElementById("add-custom-row").addEventListener("click", function () {
+                addCustomRow("special");
+            });
+
+            document.getElementById("import-data-btn").addEventListener("click", function () {
+                openImportModal();
+            });
+
+            document.getElementById("project-no").addEventListener("input", function () {
+                updateSummaryTitle();
+            });
             
             // Toggle Through Car
             const toggleBtn = document.getElementById("through-car-toggle");
@@ -3511,6 +3656,25 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 if (totalWeight <= capacity * 0.6) {
                     showToast(`校验失败: 轿厢总重量 (${totalWeight}) 必须大于 载重*0.6 (${(capacity * 0.6).toFixed(2)})`, true);
                     return;
+                }
+
+                // 2.5 检查归档数据中是否已存在当前项目号（二次确认）
+                const currentProjectNo = document.getElementById("project-no").value.trim();
+                if (currentProjectNo) {
+                    try {
+                        const checkRes = await fetch(`/api/archive/check/${encodeURIComponent(currentProjectNo)}`);
+                        if (checkRes.ok) {
+                            const checkData = await checkRes.json();
+                            if (checkData.exists) {
+                                const confirmed = await showArchiveConfirmModal();
+                                if (!confirmed) {
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Backend unavailable, skip check (fallback mode)
+                    }
                 }
 
                 // 3. Collect Data
@@ -3674,6 +3838,195 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
+
+        // ========== 导入数据功能 ==========
+        let importDataStore = [];       // 存储从JSON文件读取的项目数组
+        let importSelectedIndex = -1;   // 当前选中的项目索引
+
+        async function openImportModal() {
+            const backdrop = document.getElementById("import-modal-backdrop");
+            const listEl = document.getElementById("import-list");
+            document.getElementById("import-search").value = "";
+            document.getElementById("import-modal-error").style.display = "none";
+            importDataStore = [];
+            importSelectedIndex = -1;
+
+            // 从后端加载归档数据
+            listEl.innerHTML = '<div class="import-empty">加载中...</div>';
+            try {
+                const res = await fetch("/api/archive/all");
+                if (res.ok) {
+                    const allData = await res.json();
+                    if (Array.isArray(allData) && allData.length > 0) {
+                        importDataStore = allData;
+                        renderImportList("");
+                    } else {
+                        listEl.innerHTML = '<div class="import-empty">暂无归档数据</div>';
+                    }
+                } else {
+                    listEl.innerHTML = '<div class="import-empty">无法连接服务器，请确认后端服务已启动</div>';
+                }
+            } catch (e) {
+                listEl.innerHTML = '<div class="import-empty">无法连接服务器，请确认后端服务已启动</div>';
+            }
+
+            backdrop.style.display = "flex";
+        }
+
+        function closeImportModal() {
+            document.getElementById("import-modal-backdrop").style.display = "none";
+        }
+
+        function renderImportList(filter) {
+            const listEl = document.getElementById("import-list");
+            const keyword = (filter || "").trim().toLowerCase();
+            let filtered = importDataStore;
+            if (keyword) {
+                filtered = importDataStore.filter((item, idx) => {
+                    const no = (item.projectParams && item.projectParams.projectNo || "").toLowerCase();
+                    const model = (item.projectParams && item.projectParams.elevatorModel || "").toLowerCase();
+                    return no.includes(keyword) || model.includes(keyword);
+                });
+            }
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div class="import-empty">无匹配项目</div>';
+                return;
+            }
+            listEl.innerHTML = filtered.map((item, fIdx) => {
+                // 找到在importDataStore中的原始索引
+                const realIdx = importDataStore.indexOf(item);
+                const no = (item.projectParams && item.projectParams.projectNo) || "未知项目号";
+                const model = (item.projectParams && item.projectParams.elevatorModel) || "";
+                const ts = item.timestamp ? new Date(item.timestamp).toLocaleString("zh-CN") : "";
+                const selected = realIdx === importSelectedIndex ? " selected" : "";
+                return `<div class="import-item${selected}" data-idx="${realIdx}">
+                    <div class="radio-circle"></div>
+                    <div class="item-info">
+                        <div class="item-project-no">${no}</div>
+                        <div class="item-meta">${model}${ts ? " · " + ts : ""}</div>
+                    </div>
+                </div>`;
+            }).join("");
+        }
+
+        function fillFormFromProjectData(projectData) {
+            const pp = projectData.projectParams || {};
+            const wp = projectData.wallParams || {};
+            const weights = projectData.weights || {};
+
+            // 项目参数（先设值，不触发change避免重复buildTables）
+            if (pp.machineRoomType) {
+                document.getElementById("machine-room-type").value = pp.machineRoomType;
+                currentMachineRoom = pp.machineRoomType;
+            }
+
+            document.getElementById("project-no").value = pp.projectNo || "";
+            document.getElementById("elevator-model").value = pp.elevatorModel || "";
+            document.getElementById("capacity").value = pp.capacity || "";
+            document.getElementById("speed").value = pp.speed || "";
+            document.getElementById("param-CA").value = pp.CA || "";
+            document.getElementById("param-CB").value = pp.CB || "";
+            document.getElementById("param-CH").value = pp.CH || "";
+            document.getElementById("param-HH").value = pp.HH || "";
+            document.getElementById("param-JJ").value = pp.JJ || "";
+
+            // 开门方式
+            if (pp.openingType) {
+                document.getElementById("opening-type").value = pp.openingType;
+            }
+
+            // 门机厂家
+            if (pp.doorOperatorMfr) {
+                document.getElementById("door-operator-mfr").value = pp.doorOperatorMfr;
+            }
+
+            // 贯通
+            if (pp.throughCar) {
+                document.getElementById("through-car").value = pp.throughCar;
+                document.getElementById("through-car-toggle").textContent = pp.throughCar;
+            }
+
+            // 轿壁参数
+            if (wp.carType) {
+                document.getElementById("car-type").value = wp.carType;
+            }
+            document.getElementById("car-wall-thickness").value = wp.carWallThickness || "";
+            document.getElementById("floor-thickness").value = wp.floorThickness || "";
+            document.getElementById("param-SW").value = wp.SW || "";
+            document.getElementById("param-EA").value = wp.EA || "";
+
+            // 补偿系数
+            if (projectData.compensationFactor !== undefined) {
+                document.getElementById("compensation-factor").value = projectData.compensationFactor;
+            }
+
+            // 先重建表格（依赖项目参数），再填入重量数据
+            buildTables();
+            updateSWInputType();
+
+            // 填入重量明细数据
+            if (weights.basic) {
+                Object.keys(weights.basic).forEach(key => {
+                    const row = document.querySelector(`.table-row[data-section='basic'][data-key='${key}']`);
+                    if (!row) return;
+                    const item = weights.basic[key];
+                    const drawingInput = row.querySelector("input[data-role='drawing']");
+                    const unitInput = row.querySelector("input[data-role='unit']");
+                    const qtyInput = row.querySelector("input[data-role='quantity']");
+                    if (drawingInput && item.drawing !== undefined) drawingInput.value = item.drawing;
+                    if (unitInput && item.unit !== undefined) {
+                        unitInput.value = item.unit;
+                        unitInput.dataset.manual = "true";
+                    }
+                    if (qtyInput && item.qty !== undefined) qtyInput.value = item.qty;
+                });
+            }
+            if (weights.special) {
+                Object.keys(weights.special).forEach(key => {
+                    const row = document.querySelector(`.table-row[data-section='special'][data-key='${key}']`);
+                    if (!row) return;
+                    const item = weights.special[key];
+                    if (key === "floor") {
+                        const sel = row.querySelector("select[data-role='floor-material']");
+                        if (sel && item.spec) {
+                            // Try matching by option text
+                            for (let i = 0; i < sel.options.length; i++) {
+                                if (sel.options[i].text === item.spec || sel.options[i].value === item.spec) {
+                                    sel.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        const drawingInput = row.querySelector("input[data-role='drawing']");
+                        if (drawingInput && item.spec !== undefined) drawingInput.value = item.spec;
+                    }
+                    const unitInput = row.querySelector("input[data-role='unit']");
+                    const qtyInput = row.querySelector("input[data-role='quantity']");
+                    if (unitInput && item.unit !== undefined) {
+                        unitInput.value = item.unit;
+                        unitInput.dataset.manual = "true";
+                    }
+                    if (qtyInput && item.qty !== undefined) qtyInput.value = item.qty;
+                });
+            }
+
+            recalculateAll();
+        }
+
+        // ========== 归档二次确认 ==========
+        let archiveConfirmResolve = null;
+
+        function showArchiveConfirmModal() {
+            return new Promise((resolve) => {
+                archiveConfirmResolve = resolve;
+                document.getElementById("confirm-modal-backdrop").style.display = "flex";
+            });
+        }
+
+        function closeArchiveConfirmModal() {
+            document.getElementById("confirm-modal-backdrop").style.display = "none";
+        }
         
         function Uint8Blob(parts, opts) {
              return new Blob(parts, opts);
@@ -3698,6 +4051,63 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             });
         }
 
+        function setupImportModalEvents() {
+            const backdrop = document.getElementById("import-modal-backdrop");
+
+            // 关闭按钮
+            document.getElementById("import-modal-close").addEventListener("click", closeImportModal);
+            document.getElementById("import-modal-cancel").addEventListener("click", closeImportModal);
+            backdrop.addEventListener("click", function (e) {
+                if (e.target === backdrop) closeImportModal();
+            });
+
+            // 搜索框
+            document.getElementById("import-search").addEventListener("input", function () {
+                renderImportList(this.value);
+            });
+
+            // 列表点击选择
+            document.getElementById("import-list").addEventListener("click", function (e) {
+                const item = e.target.closest(".import-item");
+                if (!item) return;
+                const idx = parseInt(item.dataset.idx, 10);
+                importSelectedIndex = idx;
+                // 重新渲染以更新选中状态
+                renderImportList(document.getElementById("import-search").value);
+            });
+
+            // 确认导入
+            document.getElementById("import-modal-confirm").addEventListener("click", function () {
+                if (importSelectedIndex < 0 || importSelectedIndex >= importDataStore.length) {
+                    showToast("请先选择一个项目", true);
+                    return;
+                }
+                const selectedData = importDataStore[importSelectedIndex];
+                fillFormFromProjectData(selectedData);
+                closeImportModal();
+                showToast("数据已成功回填", false);
+            });
+        }
+
+        function setupArchiveConfirmEvents() {
+            const backdrop = document.getElementById("confirm-modal-backdrop");
+            document.getElementById("confirm-modal-close").addEventListener("click", closeArchiveConfirmModal);
+            document.getElementById("confirm-modal-cancel").addEventListener("click", function () {
+                closeArchiveConfirmModal();
+                if (archiveConfirmResolve) { archiveConfirmResolve(false); archiveConfirmResolve = null; }
+            });
+            document.getElementById("confirm-modal-ok").addEventListener("click", function () {
+                closeArchiveConfirmModal();
+                if (archiveConfirmResolve) { archiveConfirmResolve(true); archiveConfirmResolve = null; }
+            });
+            backdrop.addEventListener("click", function (e) {
+                if (e.target === backdrop) {
+                    closeArchiveConfirmModal();
+                    if (archiveConfirmResolve) { archiveConfirmResolve(false); archiveConfirmResolve = null; }
+                }
+            });
+        }
+
 
         document.addEventListener("DOMContentLoaded", async function () {
             const dataLoaded = await loadData();
@@ -3706,6 +4116,8 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             loadComponentsIndex();
             setupCoreEvents();
             setupModalEvents();
+            setupImportModalEvents();
+            setupArchiveConfirmEvents();
             buildTables();
             updateSWInputType();
             recalculateAll();
