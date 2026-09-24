@@ -10,6 +10,13 @@
   - **自动计算**: 内置逻辑自动推导前壁和侧柱的重量。
   - **贯通门支持**: 可切换贯通/非贯通模式，自动调整后壁与侧壁数量。
 
+- **识别图纸（v2.10 新增）**:
+  - 点击"识别图纸"按钮上传 **PDF 或 DXF** 图纸，自动识别本页参数并回填（CA/CB/CH/JJ/HH/SW/EA/载重/速度/地板厚度/开门方式等）。
+  - 三层识别策略，按可靠性递进：`CA=1350` 类标注 → `CA（CAR WIDTH） 1350` 标签+同行数值 → `CAR INTERNAL 1700`、`CAPACITY: 1600 KG`、`OPENING 1100` 等英文短语。
+  - 多梯号图纸同一参数出现多个值时，全部列出并附证据（`CA=1350（第6页）`）由用户选择，不自动猜测。
+  - 合理性区间过滤 + 数值规范化（支持欧洲小数逗号，如 `127,5` → 127.5）。
+  - 服务器端解析，无需安装 CAD 软件；**DWG 不支持直接识别**，请先在 CAD 中另存为 DXF 或打印为 PDF。
+
 - **门机重量数据库**:
   - 内置主流门机厂家的重量数据，包括：
     - 佛马特 (Fermator)
@@ -41,6 +48,7 @@
 - **前端**: HTML5, CSS3, JavaScript (原生)
 - **后端**: Node.js, Express.js, Puppeteer-core (PDF 生成)
 - **机器学习**: Python (scikit-learn), Random Forest Regressor
+- **图纸识别**: Python + PyMuPDF (PDF 文字层) / 原生 DXF 标记流解析
 
 ## 环境要求
 
@@ -49,7 +57,7 @@
 - **Chrome 浏览器**: 用于 PDF 生成（服务端自动调用本机 Chrome/Edge）
 - **Python 依赖库**:
   ```bash
-  pip install scikit-learn pandas numpy joblib
+  pip install scikit-learn pandas numpy joblib pymupdf
   ```
 
 ## 安装步骤
@@ -96,7 +104,13 @@
 - `formulas_optimized.json`: 包含计算公式和参数定义的配置文件。
 - `Random Forest Models/`: 存放预训练的机器学习模型文件 (`.pkl`)。
 - `predict_rf.py`: 用于加载模型并进行预测的 Python 脚本。
+- `extract_drawing.py`: 图纸参数识别脚本（PDF/DXF → 网页参数 JSON）。
 - `轿厢重量汇总.json`: 用于存储归档数据的 JSON 文件。
+
+## 版本历史
+
+- **v2.10** (2026-09): 新增"识别图纸"功能，支持上传 PDF/DXF 自动识别并回填项目参数（`/api/recognize-drawing` 接口 + `extract_drawing.py`）。
+- **v2.x**: 服务端 PDF 导出、数据归档/导入、归档覆盖确认。
 
 ## 许可证
 

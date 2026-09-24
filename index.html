@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轿厢重量计算器 v2.04</title>
+    <title>轿厢重量计算器 v2.10</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -1054,8 +1054,12 @@
                     <h1 class="print-title print-only" data-i18n="print_title">轿厢重量计算 - 项目参数</h1>
                 <div class="card-header">
                     <div class="card-title" data-i18n="project_params">项目参数</div>
-                    <div class="badge"><span class="badge-dot"></span><span data-i18n="realtime_calc">实时联动计算</span></div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <button id="recognize-drawing-btn" class="ghost-button" type="button" title="上传 PDF/DXF 图纸，自动识别本页参数">识别图纸</button>
+                        <div class="badge"><span class="badge-dot"></span><span data-i18n="realtime_calc">实时联动计算</span></div>
+                    </div>
                 </div>
+                <input type="file" id="drawing-file-input" accept=".pdf,.dxf" style="display:none;">
                     <div class="grid-two" style="margin-bottom: 12px;">
                         <div class="field-group">
                             <label class="field-label" data-i18n="machine_room_type">机房类型<span>*</span></label>
@@ -1241,6 +1245,24 @@
             <div class="modal-footer">
                 <button type="button" class="secondary-btn" id="confirm-modal-cancel" data-i18n="cancel">取消</button>
                 <button type="button" class="primary-btn" id="confirm-modal-ok" data-i18n="confirm" style="background:linear-gradient(135deg,#f87171,#fb923c);box-shadow:0 14px 35px rgba(220,38,38,0.6);">确认覆盖</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图纸识别结果模态框 -->
+    <div id="recog-modal-backdrop" class="modal-backdrop">
+        <div class="modal" style="max-width:580px;">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">识别图纸参数</div>
+                    <div class="field-note" id="recog-file-info"></div>
+                </div>
+                <button class="modal-close" type="button" id="recog-modal-close">×</button>
+            </div>
+            <div id="recog-result-body" style="max-height:420px;overflow-y:auto;"></div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" id="recog-modal-cancel" data-i18n="cancel">取消</button>
+                <button type="button" class="primary-btn" id="recog-modal-apply">填入所选参数</button>
             </div>
         </div>
     </div>
@@ -4109,15 +4131,148 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
         }
 
 
+        // ========== 识别图纸（PDF/DXF 自动填参数） ==========
+        const RECOG_FIELD_MAP = {
+            capacity:       { id: "capacity",        label: "载重(kg)" },
+            speed:          { id: "speed",           label: "速度(m/s)" },
+            CA:             { id: "param-CA",        label: "轿厢宽度CA(mm)" },
+            CB:             { id: "param-CB",        label: "轿厢深度CB(mm)" },
+            CH:             { id: "param-CH",        label: "轿厢高度CH/RH(mm)" },
+            HH:             { id: "param-HH",        label: "开门高度HH(mm)" },
+            JJ:             { id: "param-JJ",        label: "开门宽度JJ(mm)" },
+            SW:             { id: "param-SW",        label: "地坎宽度SW(mm)" },
+            EA:             { id: "param-EA",        label: "EA(mm)" },
+            floorThickness: { id: "floor-thickness", label: "地板厚度(mm)" },
+            openingType:    { id: "opening-type",    label: "开门方式" },
+            elevatorModel:  { id: "elevator-model",  label: "电梯型号" }
+        };
+
+        function recogEscape(s) {
+            return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        function setupRecognizeDrawingEvents() {
+            const btn = document.getElementById("recognize-drawing-btn");
+            const fileInput = document.getElementById("drawing-file-input");
+            btn.addEventListener("click", function () { fileInput.click(); });
+            fileInput.addEventListener("change", async function () {
+                const file = this.files && this.files[0];
+                this.value = "";
+                if (!file) return;
+                const ext = (file.name.split(".").pop() || "").toLowerCase();
+                if (ext === "dwg") {
+                    showToast("DWG 无法直接识别，请在 CAD 中另存为 DXF 或打印为 PDF", true);
+                    return;
+                }
+                if (ext !== "pdf" && ext !== "dxf") {
+                    showToast("仅支持 PDF / DXF 文件", true);
+                    return;
+                }
+                const oldText = btn.textContent;
+                btn.disabled = true;
+                btn.textContent = "识别中...";
+                try {
+                    const buf = await file.arrayBuffer();
+                    const resp = await fetch("/api/recognize-drawing?name=" + encodeURIComponent(file.name), {
+                        method: "POST",
+                        headers: { "Content-Type": "application/octet-stream" },
+                        body: buf
+                    });
+                    const data = await resp.json().catch(() => ({}));
+                    if (!resp.ok) throw new Error(data.error || ("服务返回 " + resp.status));
+                    showRecognizeModal(data);
+                } catch (e) {
+                    showToast("识别失败: " + e.message, true);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = oldText;
+                }
+            });
+            document.getElementById("recog-modal-close").addEventListener("click", closeRecognizeModal);
+            document.getElementById("recog-modal-cancel").addEventListener("click", closeRecognizeModal);
+            document.getElementById("recog-modal-apply").addEventListener("click", applyRecognizedParams);
+            document.getElementById("recog-modal-backdrop").addEventListener("click", function (e) {
+                if (e.target === this) closeRecognizeModal();
+            });
+        }
+
+        function closeRecognizeModal() {
+            document.getElementById("recog-modal-backdrop").style.display = "none";
+        }
+
+        function showRecognizeModal(data) {
+            const body = document.getElementById("recog-result-body");
+            const params = data.params || {};
+            const keys = Object.keys(RECOG_FIELD_MAP).filter(k => params[k] && params[k].length);
+            let html = "";
+            if (!keys.length) {
+                html = '<div style="color:#94a3b8;padding:18px 0;line-height:1.9;font-size:13px;">' +
+                    "未从图纸中识别到本页参数。<br>" +
+                    "可识别形态：CA=1350 类标注、CAR INTERNAL、CAPACITY: 1600 KG、OPENING 1100 等。<br>" +
+                    "请确认上传的是有文字层的 PDF（非扫描件）或 DXF。</div>";
+            } else {
+                html += '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px;">' +
+                    "勾选需要填入的值；同一参数出现多个候选（如多梯号图纸）时，请单选正确的一项：</div>";
+                keys.forEach(k => {
+                    const cands = params[k];
+                    const info = RECOG_FIELD_MAP[k];
+                    html += '<div style="margin-bottom:12px;">';
+                    html += '<div style="font-size:13px;font-weight:600;color:#e5e7eb;margin-bottom:4px;">' + recogEscape(info.label) + '</div>';
+                    cands.forEach((c, i) => {
+                        const inputType = cands.length > 1 ? "radio" : "checkbox";
+                        const tag = c.tag ? '<div style="font-size:11px;color:#fb923c;">⚠ ' + recogEscape(c.tag) + '</div>' : "";
+                        html += '<label style="display:flex;align-items:baseline;gap:8px;padding:5px 8px;border-radius:8px;cursor:pointer;background:rgba(148,163,184,0.06);margin-bottom:2px;">' +
+                            '<input type="' + inputType + '" name="recog-' + k + '" data-param="' + k + '" data-value="' + recogEscape(c.v) + '"' + (i === 0 ? " checked" : "") + '>' +
+                            '<span style="font-weight:600;color:#34d399;min-width:64px;">' + recogEscape(c.v) + '</span>' +
+                            '<span style="font-size:12px;color:#94a3b8;flex:1;">' + recogEscape(c.ev) + (c.page ? "（第" + c.page + "页）" : "") + '</span>' +
+                            tag + '</label>';
+                    });
+                    html += '</div>';
+                });
+                const missing = Object.keys(RECOG_FIELD_MAP).filter(k => !params[k] || !params[k].length);
+                if (missing.length) {
+                    html += '<div style="margin-top:8px;font-size:12px;color:#64748b;">未识别: ' +
+                        missing.map(k => recogEscape(RECOG_FIELD_MAP[k].label)).join("、") + '</div>';
+                }
+            }
+            document.getElementById("recog-file-info").textContent =
+                (data.file || "") + (data.pages ? " · 共" + data.pages + "页" : "") + "（" + (data.kind || "").toUpperCase() + "）";
+            body.innerHTML = html;
+            document.getElementById("recog-modal-apply").style.display = keys.length ? "" : "none";
+            document.getElementById("recog-modal-backdrop").style.display = "flex";
+        }
+
+        function applyRecognizedParams() {
+            const chosen = document.querySelectorAll("#recog-result-body input:checked");
+            let applied = 0;
+            chosen.forEach(inp => {
+                const info = RECOG_FIELD_MAP[inp.dataset.param];
+                if (!info) return;
+                const el = document.getElementById(info.id);
+                if (!el) return;
+                el.value = inp.dataset.value;
+                applied++;
+            });
+            closeRecognizeModal();
+            if (applied) {
+                try { updateFactorFromRule(); } catch (e) {}
+                try { updateSWInputType(); } catch (e) {}
+                recalculateAll();
+                showToast("已填入 " + applied + " 项参数，请核对后计算");
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", async function () {
             const dataLoaded = await loadData();
             if (!dataLoaded) return;
-            
+
             loadComponentsIndex();
             setupCoreEvents();
             setupModalEvents();
             setupImportModalEvents();
             setupArchiveConfirmEvents();
+            setupRecognizeDrawingEvents();
             buildTables();
             updateSWInputType();
             recalculateAll();

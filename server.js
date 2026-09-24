@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { PythonShell } = require('python-shell');
 const { spawn } = require('child_process');
 let puppeteer;
@@ -337,6 +338,81 @@ app.post('/api/export-pdf', async (req, res) => {
     } catch (error) {
         console.error('Export PDF error:', error);
         res.status(500).json({ error: 'Failed to export PDF: ' + error.message });
+    }
+});
+
+// 识别图纸参数（PDF/DXF 上传 -> Python extract_drawing.py -> JSON）
+const RECOG_MARKER = '===RESULT_JSON===';
+app.post('/api/recognize-drawing', express.raw({ type: () => true, limit: '200mb' }), (req, res) => {
+    let tmpPath = null;
+    try {
+        const rawName = req.query.name ? String(req.query.name) : 'drawing.pdf';
+        let name;
+        try {
+            name = decodeURIComponent(rawName);
+        } catch (_) {
+            name = rawName;
+        }
+        name = name.replace(/[\\/:*?"<>|\r\n]/g, '_');
+        const ext = path.extname(name).toLowerCase();
+        if (!req.body || !req.body.length) {
+            return res.status(400).json({ error: '上传内容为空' });
+        }
+        if (ext !== '.pdf' && ext !== '.dxf') {
+            return res.status(400).json({ error: '仅支持 PDF / DXF 文件。DWG 请先在 CAD 中另存为 DXF，或打印为 PDF 后再识别。' });
+        }
+
+        tmpPath = path.join(os.tmpdir(), 'cwc_' + Date.now() + '_' + Math.random().toString(36).slice(2) + ext);
+        fs.writeFileSync(tmpPath, req.body);
+
+        const scriptPath = path.join(__dirname, 'extract_drawing.py');
+        const py = spawn('python', [scriptPath, tmpPath], { cwd: __dirname, windowsHide: true });
+        let stdout = '';
+        let stderr = '';
+        let finished = false;
+
+        const timer = setTimeout(() => {
+            if (!finished) {
+                finished = true;
+                try { py.kill(); } catch (_) {}
+                if (tmpPath && fs.existsSync(tmpPath)) { try { fs.unlinkSync(tmpPath); } catch (_) {} }
+                return res.status(504).json({ error: '识别超时（90秒），请确认文件是有效且有文字层的 PDF/DXF' });
+            }
+        }, 90000);
+
+        py.stdout.on('data', (d) => { stdout += d.toString(); });
+        py.stderr.on('data', (d) => { stderr += d.toString(); });
+        py.on('error', (err) => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(timer);
+            if (tmpPath && fs.existsSync(tmpPath)) { try { fs.unlinkSync(tmpPath); } catch (_) {} }
+            res.status(500).json({ error: '无法启动 Python（需要已安装 Python 和 PyMuPDF）: ' + err.message });
+        });
+        py.on('close', (code) => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(timer);
+            if (tmpPath && fs.existsSync(tmpPath)) { try { fs.unlinkSync(tmpPath); } catch (_) {} }
+            const idx = stdout.indexOf(RECOG_MARKER);
+            if (code !== 0 || idx === -1) {
+                console.error('recognize-drawing failed, stderr:', stderr.slice(0, 2000));
+                return res.status(500).json({ error: '图纸解析失败: ' + (stderr || 'Python 退出码 ' + code).split('\n').slice(-3).join(' ').slice(0, 300) });
+            }
+            try {
+                const data = JSON.parse(stdout.slice(idx + RECOG_MARKER.length).trim());
+                if (!data.ok) {
+                    return res.status(500).json({ error: data.error || '解析失败' });
+                }
+                data.file = name; // 返回用户上传的原始文件名（而非临时文件名）
+                res.json(data);
+            } catch (e) {
+                res.status(500).json({ error: '解析结果异常: ' + e.message });
+            }
+        });
+    } catch (error) {
+        if (tmpPath && fs.existsSync(tmpPath)) { try { fs.unlinkSync(tmpPath); } catch (_) {} }
+        res.status(500).json({ error: '识别图纸失败: ' + error.message });
     }
 });
 

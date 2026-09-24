@@ -1,6 +1,6 @@
 {
   "name": "component-weight-calculator",
-  "version": "1.0.0",
+  "version": "2.10.0",
   "description": "A web application for calculating component weights",
   "main": "server.js",
   "scripts": {
