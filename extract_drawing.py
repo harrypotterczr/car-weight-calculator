@@ -12,6 +12,12 @@
 """
 import sys, os, re, json
 
+# Windows 下被 Node spawn 时 stdout 默认用系统编码(GBK)，中文会乱码，强制 UTF-8
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+
 MARKER = "===RESULT_JSON==="
 
 def log(*a):
@@ -24,6 +30,7 @@ KEY_ALIAS = {
     'CA': 'CA', 'CB': 'CB', 'CH': 'CH', 'RH': 'CH',   # RH 为 CH 的备选证据
     'PL': 'JJ', 'LH': 'HH', 'JJ': 'JJ', 'HH': 'HH',
     'SW': 'SW', 'EA': 'EA', 'FT': 'floorThickness',
+    'SPEED': 'speed',
 }
 
 # 中文标注键 -> 网页参数（要求单位 kg 的除外）
@@ -45,6 +52,7 @@ KEY_DESC = {
     'EA': 'EA(mm)', 'floorThickness': '地板厚度(mm)',
     'capacity': '载重(kg)', 'speed': '速度(m/s)',
     'openingType': '开门方式', 'elevatorModel': '电梯型号',
+    'doorMfr': '门机厂家',
 }
 
 # 合理性区间（超范围直接丢弃，保证识别质量）
@@ -172,13 +180,20 @@ def collect_dxf(path):
 
 def add_candidate(result, param, value, page, ev, score, tag=None):
     v = norm_num(str(value))
-    if v is None or not in_range(param, v):
+    if v is not None and not in_range(param, v):
         return
+    if v is None:
+        # 文本型参数（openingType / doorMfr / elevatorModel 等）
+        v = str(value).strip()
+        if not v:
+            return
     lst = result.setdefault(param, [])
     for c in lst:
         if c['v'] == v:
             c['count'] += 1
-            if score > c['score']:
+            # 同分时 RH 来源优先（用户规则: CH/RH 并存用 RH）
+            if score > c['score'] or (score == c['score'] and tag == 'RH'
+                                      and c.get('tag') != 'RH'):
                 c['score'], c['ev'], c['page'], c['tag'] = score, ev, page, tag
             return
     lst.append({'v': v, 'page': page, 'ev': ev, 'score': score, 'count': 1,
@@ -188,7 +203,7 @@ def add_candidate(result, param, value, page, ev, score, tag=None):
 def tier1_tokens(result, items):
     """层1: 单 token 内 KEY=value / 中文标注=值"""
     pat_latin = re.compile(
-        r'^\s*([A-Za-z]{1,4}[A-Za-z0-9_]*)\s*=\s*' + NUM_RE + r'\s*(?:mm|MM)?\s*$')
+        r'^\s*([A-Za-z]{1,5}[A-Za-z0-9_]*)\s*=\s*' + NUM_RE + r'\s*(?:mm|MM)?\s*$')
     pat_desc = re.compile(
         r'^\s*(CA|CB|CH|RH|PL|LH|JJ|HH|SW|EA|FT)\s*[（(].*?[）)]?\s*[:=：]?\s*' +
         NUM_RE)
@@ -199,10 +214,13 @@ def tier1_tokens(result, items):
         t = it['t']
         m = pat_latin.match(t)
         if m:
-            param = KEY_ALIAS.get(m.group(1).upper())
+            key = m.group(1).upper()
+            param = KEY_ALIAS.get(key)
             if param:
+                # RH(CAR OVERALL HEIGHT) 来源标记: 与 CH 并存时优先使用 RH
+                tag = 'RH' if key == 'RH' else None
                 add_candidate(result, param, m.group(2), it['page'],
-                              t, 100)
+                              t, 100, tag=tag)
                 continue
         m = pat_desc.match(t)
         if m:
@@ -230,7 +248,11 @@ def tier1b_same_line(result, items):
         for it in its:
             t = it['t']
             m = pat_label.match(t)
-            param = KEY_ALIAS.get(m.group(1).upper()) if m else None
+            key = m.group(1).upper() if m else None
+            param = KEY_ALIAS.get(key) if key else None
+            if not param and re.match(r"^\s*SPEE[D'\u2019]?\s*[（(]", t, re.I):
+                # 参数表标签 "SPEED (m/s)"（DXF 表格中数值通常在同行右侧单元格）
+                param = 'speed'
             if not param:
                 mc = pat_cn_label.match(t)
                 param = CN_LABELS.get(mc.group(1)) if mc else None
@@ -254,7 +276,33 @@ def tier1b_same_line(result, items):
                     best = (dist, o)
             if best:
                 ev = t + ' ' + best[1]['t']
-                add_candidate(result, param, best[1]['t'], page, ev, 90)
+                tag = 'RH' if key == 'RH' else None
+                add_candidate(result, param, best[1]['t'], page, ev, 90,
+                              tag=tag)
+
+
+def _decode_shifted(seg):
+    """KINETEK 图纸 PDF 文字层字形错乱: 提取码位 = 实际码位 - 29。
+    如 SPEED (m/s) -> SPEE' \\x0bP\\x12V\\x0c, 数值 1.75 -> \\x14\\x11\\x1a\\x18。
+    对控制字符 (+29) 还原; 字母小写变大写 (m->P) 不影响数字提取。"""
+    out = []
+    for ch in seg:
+        o = ord(ch)
+        out.append(chr(o + 29) if 0x01 <= o <= 0x1F else ch)
+    return ''.join(out)
+
+
+def tier_speed_table(result, pagetext):
+    """参数表(GENERAL LIFT INFO)速度识别: SPEE' 标签后还原被错乱的数字"""
+    pat = re.compile(r"SPEE[D'\u2019]", re.I)
+    for page, txt in pagetext.items():
+        for m in pat.finditer(txt):
+            dec = _decode_shifted(txt[m.end():m.end() + 80])
+            nm = re.search(r'\d+(?:\.\d+)?', dec)
+            if nm:
+                add_candidate(result, 'speed', nm.group(0), page,
+                              "SPEED 参数表 %s" % nm.group(0), 85)
+                break
 
 
 def tier2_phrases(result, pagetext):
@@ -262,7 +310,7 @@ def tier2_phrases(result, pagetext):
     num = NUM_RE
     phrases = [
         (r'CAR\s+NET\s+HEIGHT\s*[:=：]?\s*' + num, 'CH', 75),
-        (r'CAR\s+OVERALL\s+HEIGHT\s*[:=：]?\s*' + num, 'CH', 65),
+        (r'CAR\s+OVERALL\s+HEIGHT\s*[:=：]?\s*' + num, 'CH:RH', 65),
         (r'CAR\s+INTERNAL\s*[:=：]?\s*' + num, 'car_internal', 70),
         (r'CAR\s+WIDTH\s*[:=：]?\s*' + num, 'CA', 55),
         (r'CAR\s+DEPTH\s*[:=：]?\s*' + num, 'CB', 55),
@@ -275,8 +323,14 @@ def tier2_phrases(result, pagetext):
         (r'DOOR\s+HEIGHT\s*[:=：]?\s*' + num, 'HH', 70),
         (r'CLEAR\s+OPENING\s*[:=：]?\s*' + num, 'JJ', 72),
         (r'ELEVATOR\s+MODEL\s*[:=：]\s*([A-Z0-9][A-Z0-9\- ]{1,40})', 'elevatorModel', 80),
-        (r'CENTER(?:ING)?\s+OPENING|CENTRE(?:ING)?\s+OPENING|中分', 'openingType:center', 70),
-        (r'SIDE\s+OPENING|旁开|TWO[\s\-]?SPEED\s+SIDE', 'openingType:side', 70),
+        (r'CENT(?:ER|RE)(?:ING)?\s*OPENIN|中分|中分门', 'openingType:center', 70),
+        # 英文图纸文字层常有字形缺失: SIDE OPENING -> SI'E OPENIN*, OPENING -> OPENIN*
+        (r'SI[D\''']E\s*OPENIN|旁开|旁开门|TWO[\s\-]?SPEED\s+SIDE', 'openingType:side', 70),
+        # 门机厂家：中文备注 + 英文品牌名（英文图纸常见于 PMC 表 "Door Machine XXX"）
+        (r'Fermator|佛马特', 'mfr:femator', 80),
+        (r'E-?Shin[ge]|E-?Sheng|易升', 'mfr:esheng', 80),
+        (r'Wittur|威特', 'mfr:wittur', 80),
+        (r'\bGAL\b', 'mfr:gal', 75),
     ]
     for page, txt in pagetext.items():
         flat = re.sub(r'\s+', ' ', txt)
@@ -295,6 +349,16 @@ def tier2_phrases(result, pagetext):
                 elif param == 'openingType:side':
                     add_candidate(result, 'openingType', '旁开', page,
                                   m.group(0), score)
+                elif param.startswith('mfr:'):
+                    name = {'mfr:femator': '佛马特', 'mfr:esheng': '易升',
+                            'mfr:wittur': '威特', 'mfr:gal': 'GAL'}[param]
+                    # 证据带上下文（如 "Door Machine Fermator,Door Header"）
+                    ev = flat[max(0, m.start() - 25):m.end() + 25].strip()
+                    add_candidate(result, 'doorMfr', name, page, ev, score)
+                elif param == 'CH:RH':
+                    # CAR OVERALL HEIGHT 即 RH，标记为 RH 来源
+                    add_candidate(result, 'CH', m.group(1), page,
+                                  m.group(0), score, tag='RH')
                 elif param == 'elevatorModel':
                     val = m.group(1).strip()
                     # 截断到下一个明显非型号词
@@ -331,6 +395,7 @@ def main():
         tier1_tokens(result, items)
         tier1b_same_line(result, items)
         tier2_phrases(result, pagetext)
+        tier_speed_table(result, pagetext)
         pages = max(pagetext) if pagetext else 0
         out = {'ok': True, 'kind': 'pdf', 'file': os.path.basename(path),
                'pages': pages, 'params': result}
@@ -340,18 +405,25 @@ def main():
         tier1_tokens(result, items)
         tier1b_same_line(result, items)
         tier2_phrases(result, pagetext)
+        tier_speed_table(result, pagetext)
         out = {'ok': True, 'kind': 'dxf', 'file': os.path.basename(path),
                'pages': 0, 'params': result}
     else:
         out = {'ok': False, 'error': '不支持的文件类型: %s（仅支持 PDF/DXF）' % ext}
 
-    # 每个参数按 score 降序
+    # 后处理
     if out.get('ok'):
+        # CH 与 RH(CAR OVERALL HEIGHT) 并存时，优先使用 RH（用户规则）
+        ch = out['params'].get('CH')
+        if ch and any(c.get('tag') == 'RH' for c in ch):
+            out['params']['CH'] = [c for c in ch if c.get('tag') == 'RH']
+        # 每个参数按 score 降序
         for k in out['params']:
             out['params'][k].sort(key=lambda c: (-c['score'], -c['count']))
 
     print(MARKER)
-    print(json.dumps(out, ensure_ascii=False))
+    # ensure_ascii=True: 非 ASCII 字符全部转 \uXXXX 转义，彻底规避管道编码问题
+    print(json.dumps(out, ensure_ascii=True))
 
 
 if __name__ == '__main__':

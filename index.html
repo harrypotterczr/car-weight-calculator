@@ -1171,7 +1171,7 @@
                             <input id="param-SW" class="field-input required-field" type="number" step="1" placeholder="mm">
                         </div>
                         <div class="field-group">
-                            <label class="field-label" data-i18n="floor_thickness">地板厚度<span>*</span></label>
+                            <label class="field-label" data-i18n="floor_thickness">地板厚度FT<span>*</span></label>
                             <input id="floor-thickness" class="field-input required-field" type="number" step="0.1" placeholder="mm">
                         </div>
                     </div>
@@ -4144,6 +4144,7 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             EA:             { id: "param-EA",        label: "EA(mm)" },
             floorThickness: { id: "floor-thickness", label: "地板厚度(mm)" },
             openingType:    { id: "opening-type",    label: "开门方式" },
+            doorMfr:        { id: "door-operator-mfr", label: "门机厂家" },
             elevatorModel:  { id: "elevator-model",  label: "电梯型号" }
         };
 
