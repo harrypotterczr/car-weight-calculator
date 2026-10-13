@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轿厢重量计算器 v2.10</title>
+    <title>轿厢重量计算器 v2.13</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -660,6 +660,28 @@
             color: #6b7280;
             margin-top: 2px;
         }
+        .import-del-btn {
+            flex: none;
+            width: 24px;
+            height: 24px;
+            line-height: 22px;
+            text-align: center;
+            border-radius: 7px;
+            border: 1px solid rgba(248,113,113,0.35);
+            background: rgba(248,113,113,0.08);
+            color: #f87171;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 120ms ease, border-color 120ms ease;
+        }
+        .import-del-btn:hover {
+            background: rgba(248,113,113,0.22);
+            border-color: rgba(248,113,113,0.7);
+        }
+        .input-invalid {
+            border-color: #f87171 !important;
+            background: rgba(248,113,113,0.06);
+        }
         .import-empty {
             text-align: center;
             color: #6b7280;
@@ -1235,16 +1257,17 @@
         <div class="modal" style="max-width:420px;">
             <div class="modal-header">
                 <div>
-                    <div class="modal-title" data-i18n="confirm_overwrite">确认覆盖</div>
+                    <div class="modal-title" id="confirm-modal-title" data-i18n="confirm_overwrite">确认覆盖</div>
                 </div>
                 <button class="modal-close" type="button" id="confirm-modal-close">×</button>
             </div>
             <div style="padding:10px 0;font-size:14px;color:#e5e7eb;line-height:1.7;">
-                <span data-i18n="overwrite_warning">该项目的数据已存在，确认归档将替换旧数据。是否继续？</span>
+                <span id="confirm-modal-text" data-i18n="overwrite_warning">该项目的数据已存在，确认归档将替换旧数据。是否继续？</span>
             </div>
             <div class="modal-footer">
                 <button type="button" class="secondary-btn" id="confirm-modal-cancel" data-i18n="cancel">取消</button>
                 <button type="button" class="primary-btn" id="confirm-modal-ok" data-i18n="confirm" style="background:linear-gradient(135deg,#f87171,#fb923c);box-shadow:0 14px 35px rgba(220,38,38,0.6);">确认覆盖</button>
+                <!-- 删除场景下按钮文案由 JS 动态改为“确认删除” -->
             </div>
         </div>
     </div>
@@ -1263,6 +1286,27 @@
             <div class="modal-footer">
                 <button type="button" class="secondary-btn" id="recog-modal-cancel" data-i18n="cancel">取消</button>
                 <button type="button" class="primary-btn" id="recog-modal-apply">填入所选参数</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 部件名称修改弹窗 -->
+    <div id="rename-modal-backdrop" class="modal-backdrop">
+        <div class="modal" style="max-width:380px;">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">修改部件名称</div>
+                    <div class="field-note">临时修改，仅影响当前页面显示及导出/归档</div>
+                </div>
+                <button class="modal-close" type="button" id="rename-modal-close">×</button>
+            </div>
+            <div style="padding:10px 0;">
+                <input id="rename-modal-input" class="field-input" style="width:100%;box-sizing:border-box;" maxlength="50">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" id="rename-modal-reset">恢复默认</button>
+                <button type="button" class="secondary-btn" id="rename-modal-cancel" data-i18n="cancel">取消</button>
+                <button type="button" class="primary-btn" id="rename-modal-ok">确定</button>
             </div>
         </div>
     </div>
@@ -2417,6 +2461,27 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             return isNaN(n) ? 0 : n;
         }
 
+        // 单重支持四则运算公式（如 "105+78"、"2.5*3"、"（120-15）/2"），自动计算
+        function evalUnitFormula(raw) {
+            if (raw == null) return 0;
+            let s = String(raw).trim();
+            if (!s) return 0;
+            // 全角/常见符号归一化
+            s = s.replace(/[×ｘXx]/g, '*').replace(/÷/g, '/')
+                 .replace(/＋/g, '+').replace(/[－—–]/g, '-')
+                 .replace(/（/g, '(').replace(/）/g, ')');
+            // 纯数字直接返回
+            if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+            // 仅允许数字与四则运算符/括号，防注入
+            if (!/^[0-9+\-*/().\s]+$/.test(s)) return NaN;
+            try {
+                const v = Function('"use strict";return (' + s + ')')();
+                return (typeof v === 'number' && isFinite(v)) ? v : NaN;
+            } catch (e) {
+                return NaN;
+            }
+        }
+
         function getDoorOperatorWeight(mfr, type, jj, sw) {
             if (!mfr || !type || !jj) return 0;
             
@@ -2699,8 +2764,9 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             // Unit Weight
             const unitCell = document.createElement("div");
             const unitInput = document.createElement("input");
-            unitInput.type = "number";
-            unitInput.step = "0.01";
+            unitInput.type = "text";
+            unitInput.inputMode = "decimal";
+            unitInput.placeholder = "数字或公式 如105+78";
             unitInput.className = "field-input small-input";
             unitInput.dataset.role = "unit";
             unitCell.appendChild(unitInput);
@@ -2751,6 +2817,56 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             }, 50);
         }
 
+        // ========== 模板部件名称临时修改（双击名称） ==========
+        const customNames = {};   // key: "section|key" -> 自定义名称（buildTables 重建后保留）
+
+        function openRenameModal(section, key, current) {
+            renameTarget = { section, key };
+            const inp = document.getElementById("rename-modal-input");
+            inp.value = current;
+            document.getElementById("rename-modal-backdrop").style.display = "flex";
+            setTimeout(() => { inp.focus(); inp.select(); }, 50);
+        }
+
+        function closeRenameModal() {
+            renameTarget = null;
+            document.getElementById("rename-modal-backdrop").style.display = "none";
+        }
+
+        function applyRename(value) {
+            if (!renameTarget) return;
+            const { section, key } = renameTarget;
+            const v = (value == null ? document.getElementById("rename-modal-input").value : value).trim();
+            const k = section + "|" + key;
+            if (v && v !== t(key)) {
+                customNames[k] = v;
+            } else {
+                delete customNames[k];
+            }
+            const label = document.querySelector(`.table-row[data-section='${section}'][data-key='${key}'] .cell-label`);
+            if (label) {
+                label.textContent = v || t(key);
+                label.title = v && v !== t(key) ? "自定义名称（双击可修改）" : "双击可临时修改名称";
+            }
+            closeRenameModal();
+        }
+
+        function setupRenameModalEvents() {
+            document.getElementById("rename-modal-close").addEventListener("click", closeRenameModal);
+            document.getElementById("rename-modal-cancel").addEventListener("click", closeRenameModal);
+            document.getElementById("rename-modal-ok").addEventListener("click", () => applyRename());
+            document.getElementById("rename-modal-reset").addEventListener("click", () => applyRename(""));
+            const backdrop = document.getElementById("rename-modal-backdrop");
+            backdrop.addEventListener("click", function (e) {
+                if (e.target === backdrop) closeRenameModal();
+            });
+            const inp = document.getElementById("rename-modal-input");
+            inp.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") applyRename();
+                if (e.key === "Escape") closeRenameModal();
+            });
+        }
+
         function buildTables() {
             const basicBody = document.getElementById("basic-body");
             const specialBody = document.getElementById("special-body");
@@ -2775,7 +2891,12 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 row.dataset.key = item.key;
 
                 const nameCell = document.createElement("div");
-                nameCell.innerHTML = `<div class="cell-label">${t(item.key)}</div>`;
+                const nameKey = "basic|" + item.key;
+                const displayName = customNames[nameKey] || t(item.key);
+                nameCell.innerHTML = `<div class="cell-label" title="${customNames[nameKey] ? "自定义名称（双击可修改）" : "双击可临时修改名称"}">${displayName}</div>`;
+                nameCell.querySelector(".cell-label").addEventListener("dblclick", function () {
+                    openRenameModal("basic", item.key, this.textContent);
+                });
 
                 const drawingCell = document.createElement("div");
                 const drawingInput = document.createElement("input");
@@ -2786,8 +2907,9 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
 
                 const unitCell = document.createElement("div");
                 const unitInput = document.createElement("input");
-                unitInput.type = "number";
-                unitInput.step = "0.01";
+                unitInput.type = "text";
+                unitInput.inputMode = "decimal";
+                unitInput.placeholder = "数字或公式";
                 unitInput.className = "field-input small-input";
                 unitInput.dataset.role = "unit";
                 if (item.defaultUnit != null) {
@@ -2843,7 +2965,12 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 row.dataset.key = item.key;
 
                 const nameCell = document.createElement("div");
-                nameCell.innerHTML = `<div class="cell-label">${t(item.key)}</div>`;
+                const nameKey = "special|" + item.key;
+                const displayName = customNames[nameKey] || t(item.key);
+                nameCell.innerHTML = `<div class="cell-label" title="${customNames[nameKey] ? "自定义名称（双击可修改）" : "双击可临时修改名称"}">${displayName}</div>`;
+                nameCell.querySelector(".cell-label").addEventListener("dblclick", function () {
+                    openRenameModal("special", item.key, this.textContent);
+                });
 
                 const specCell = document.createElement("div");
                 if (item.key === "floor") {
@@ -2874,8 +3001,9 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
 
                 const unitCell = document.createElement("div");
                 const unitInput = document.createElement("input");
-                unitInput.type = "number";
-                unitInput.step = "0.01";
+                unitInput.type = "text";
+                unitInput.inputMode = "decimal";
+                unitInput.placeholder = "数字或公式";
                 unitInput.className = "field-input small-input";
                 unitInput.dataset.role = "unit";
                 unitCell.appendChild(unitInput);
@@ -3082,7 +3210,10 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                     unitInput.readOnly = false;
                 }
 
-                const unit = parseNumber(unitInput.value);
+                // 单重支持公式（如 105+78），非法公式记为 0 并标红提示
+                const unitEval = evalUnitFormula(unitInput.value);
+                unitInput.classList.toggle("input-invalid", isNaN(unitEval));
+                const unit = isNaN(unitEval) ? 0 : unitEval;
                 const qty = parseNumber(qtyInput.value) || 0;
                 const total = unit * qty;
                 totalCell.textContent = total ? total.toFixed(2) : "0.00";
@@ -3805,10 +3936,11 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 const totalDiv = row.querySelector("div[data-role='total']");
                 
                 if (unitInput && qtyInput && totalDiv) {
+                    const unitEval = evalUnitFormula(unitInput.value);
                     weights.basic[key] = {
                         name: name,
                         drawing: drawingInput ? drawingInput.value : "",
-                        unit: parseNumber(unitInput.value),
+                        unit: isNaN(unitEval) ? 0 : unitEval,
                         qty: parseNumber(qtyInput.value),
                         total: parseNumber(totalDiv.textContent)
                     };
@@ -3836,10 +3968,11 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 const totalDiv = row.querySelector("div[data-role='total']");
                 
                 if (unitInput && qtyInput && totalDiv) {
+                    const unitEval = evalUnitFormula(unitInput.value);
                     weights.special[key] = {
                         name: name,
                         spec: spec,
-                        unit: parseNumber(unitInput.value),
+                        unit: isNaN(unitEval) ? 0 : unitEval,
                         qty: parseNumber(qtyInput.value),
                         total: parseNumber(totalDiv.textContent)
                     };
@@ -3927,6 +4060,7 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                         <div class="item-project-no">${no}</div>
                         <div class="item-meta">${model}${ts ? " · " + ts : ""}</div>
                     </div>
+                    <button type="button" class="import-del-btn" data-del="${realIdx}" title="删除此归档">×</button>
                 </div>`;
             }).join("");
         }
@@ -3980,6 +4114,22 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             // 补偿系数
             if (projectData.compensationFactor !== undefined) {
                 document.getElementById("compensation-factor").value = projectData.compensationFactor;
+            }
+
+            // 恢复归档中保存的自定义部件名称（与模板名不同则视为自定义）
+            if (weights.basic) {
+                Object.keys(weights.basic).forEach(key => {
+                    const n = weights.basic[key] && weights.basic[key].name;
+                    const k = "basic|" + key;
+                    if (n && n !== t(key)) customNames[k] = n; else delete customNames[k];
+                });
+            }
+            if (weights.special) {
+                Object.keys(weights.special).forEach(key => {
+                    const n = weights.special[key] && weights.special[key].name;
+                    const k = "special|" + key;
+                    if (n && n !== t(key)) customNames[k] = n; else delete customNames[k];
+                });
             }
 
             // 先重建表格（依赖项目参数），再填入重量数据
@@ -4039,9 +4189,22 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
         // ========== 归档二次确认 ==========
         let archiveConfirmResolve = null;
 
-        function showArchiveConfirmModal() {
+        function showArchiveConfirmModal(message) {
             return new Promise((resolve) => {
                 archiveConfirmResolve = resolve;
+                // 支持自定义确认文案；归档覆盖流程沿用默认文案
+                const titleEl = document.getElementById("confirm-modal-title");
+                const textEl = document.getElementById("confirm-modal-text");
+                const okBtn = document.getElementById("confirm-modal-ok");
+                if (message) {
+                    titleEl.textContent = "确认删除";
+                    textEl.textContent = message;
+                    okBtn.textContent = "确认删除";
+                } else {
+                    titleEl.textContent = "确认覆盖";
+                    textEl.textContent = "该项目的数据已存在，确认归档将替换旧数据。是否继续？";
+                    okBtn.textContent = "确认覆盖";
+                }
                 document.getElementById("confirm-modal-backdrop").style.display = "flex";
             });
         }
@@ -4073,6 +4236,35 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             });
         }
 
+        // 删除一条归档数据（带二次确认）
+        async function deleteArchiveEntry(idx) {
+            if (isNaN(idx) || idx < 0 || idx >= importDataStore.length) return;
+            const item = importDataStore[idx];
+            const no = (item.projectParams && item.projectParams.projectNo) || "未知项目号";
+            const confirmed = await showArchiveConfirmModal(
+                `确认删除项目「${no}」的归档数据？删除后不可恢复。`);
+            if (!confirmed) return;
+            try {
+                const resp = await fetch(`/api/archive/${idx}`, { method: "DELETE" });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) throw new Error(data.error || ("服务返回 " + resp.status));
+                // 重新加载归档数据
+                const allRes = await fetch("/api/archive/all");
+                importDataStore = await allRes.json();
+                if (!Array.isArray(importDataStore)) importDataStore = [];
+                // 修正选中索引
+                if (importSelectedIndex === idx) {
+                    importSelectedIndex = -1;
+                } else if (importSelectedIndex > idx) {
+                    importSelectedIndex -= 1;
+                }
+                renderImportList(document.getElementById("import-search").value);
+                showToast(`已删除归档「${no}」`, false);
+            } catch (e) {
+                showToast("删除失败: " + e.message, true);
+            }
+        }
+
         function setupImportModalEvents() {
             const backdrop = document.getElementById("import-modal-backdrop");
 
@@ -4088,8 +4280,14 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 renderImportList(this.value);
             });
 
-            // 列表点击选择
-            document.getElementById("import-list").addEventListener("click", function (e) {
+            // 列表点击选择 / 删除
+            document.getElementById("import-list").addEventListener("click", async function (e) {
+                const delBtn = e.target.closest(".import-del-btn");
+                if (delBtn) {
+                    e.stopPropagation();
+                    await deleteArchiveEntry(parseInt(delBtn.dataset.del, 10));
+                    return;
+                }
                 const item = e.target.closest(".import-item");
                 if (!item) return;
                 const idx = parseInt(item.dataset.idx, 10);
@@ -4274,6 +4472,7 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             setupImportModalEvents();
             setupArchiveConfirmEvents();
             setupRecognizeDrawingEvents();
+            setupRenameModalEvents();
             buildTables();
             updateSWInputType();
             recalculateAll();

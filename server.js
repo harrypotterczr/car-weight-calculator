@@ -512,6 +512,36 @@ app.get('/api/archive/all', (req, res) => {
     }
 });
 
+// 删除指定索引的归档数据
+app.delete('/api/archive/:index', (req, res) => {
+    try {
+        const idx = parseInt(req.params.index, 10);
+        const filePath = path.join(__dirname, '轿厢重量汇总.json');
+        let currentData = [];
+        if (fs.existsSync(filePath)) {
+            try {
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                if (fileContent.trim()) {
+                    const parsed = JSON.parse(fileContent);
+                    currentData = Array.isArray(parsed) ? parsed : [parsed];
+                }
+            } catch (e) {
+                return res.status(500).json({ error: '归档文件读取失败: ' + e.message });
+            }
+        }
+        if (isNaN(idx) || idx < 0 || idx >= currentData.length) {
+            return res.status(404).json({ error: '归档数据不存在（索引 ' + req.params.index + '）' });
+        }
+        const removed = currentData.splice(idx, 1)[0];
+        fs.writeFileSync(filePath, JSON.stringify(currentData, null, 2), 'utf8');
+        const removedNo = removed && removed.projectParams ? removed.projectParams.projectNo : '';
+        console.log('Archive deleted: index', idx, removedNo);
+        res.json({ success: true, removedProjectNo: removedNo, count: currentData.length });
+    } catch (error) {
+        res.status(500).json({ error: '删除归档失败: ' + error.message });
+    }
+});
+
 // 归档轿厢重量数据的API
 app.post('/api/archive', (req, res) => {
     try {
