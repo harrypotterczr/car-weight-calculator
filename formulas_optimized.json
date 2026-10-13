@@ -576,5 +576,418 @@
     "r2_score": 0.2899555774624708,
     "formula": "随机森林模型",
     "data_points": 10
+  },
+  {
+    "component_drawing_no": "V0700001_G01",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CB",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.009396*CA + 0.014648*CH + 32.668671",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0700001_G02",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CB",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.009396*CA + 0.014648*CH + 32.846234",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710052",
+    "component_name": "安全钳装置",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.034760*CA + 83.736789",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710092",
+    "component_name": "钳架装配",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.015449*CA + 39.200702",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710105",
+    "component_name": "钳架装配",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.030992*CA + 42.845112",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710149",
+    "component_name": "安全钳联动机构",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight =  + 9.600716",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710151",
+    "component_name": "钳架装配",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.030992*CA + 41.193943",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710167",
+    "component_name": "安全钳联动机构",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight =  + 8.878380",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710174",
+    "component_name": "安全钳装置",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.034760*CA + 66.552162",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0710180",
+    "component_name": "安全钳装置",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.015449*CA + 67.064540",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730024_G04",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 0.0,
+    "formula": "unit_weight =  + 39.290428",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730037_G01",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 35.684138",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730037_G02",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 39.438322",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730048_G03",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 30.558716",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730074_G01",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008453*CA + 19.804127",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730074_G02",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008453*CA + 22.705487",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730074_G03",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008453*CA + 25.606847",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730074_G04",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008453*CA + 28.508207",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730074_G05",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008453*CA + 31.494347",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730074_G06",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008453*CA + 34.395707",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730077_G01",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 34.921343",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730077_G02",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 39.241983",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730110",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 42.471306",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0730120",
+    "component_name": "轿底托架",
+    "parameters": [
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.008541*CA + 31.819023",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740002",
+    "component_name": "轿厢框架装配",
+    "parameters": [
+      "CH",
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.013989*CH + 0.013157*CA + 16.635956",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740029_G01",
+    "component_name": "轿厢框架装配",
+    "parameters": [
+      "CH",
+      "CA",
+      "载重"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.014460*CH + 0.010809*CA + 17.635229",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740029_G02",
+    "component_name": "轿厢框架装配",
+    "parameters": [
+      "CH",
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.015402*CH + 0.010809*CA + 19.611545",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740030",
+    "component_name": "轿厢框架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.010809*CA + 0.015402*CH + 20.671295",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740084",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.015989*CA + 0.016527*CH + 41.863438",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740091",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.017245*CA + 0.016998*CH + 43.967238",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740100",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.030794*CA + 0.024819*CH + 63.248241",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740119",
+    "component_name": "轿厢框架装配",
+    "parameters": [
+      "CH",
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.015402*CH + 0.014193*CA + 21.199098",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740123",
+    "component_name": "轿厢框架装配",
+    "parameters": [
+      "CH",
+      "CA"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.016344*CH + 0.012937*CA + 31.640859",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740133_G02",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.026156*CA + 0.016598*CH + 50.998247",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740134_G02",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.017333*CA + 0.016998*CH + 46.071163",
+    "data_points": 50
+  },
+  {
+    "component_drawing_no": "V0740134_G04",
+    "component_name": "轿厢架装配",
+    "parameters": [
+      "CA",
+      "CH"
+    ],
+    "model_type": "linear",
+    "r2_score": 1.0,
+    "formula": "unit_weight = 0.017333*CA + 0.016998*CH + 46.071163",
+    "data_points": 50
   }
 ]
