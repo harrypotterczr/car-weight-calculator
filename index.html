@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轿厢重量计算器 v2.13</title>
+    <title>轿厢重量计算器 v2.14</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -2867,7 +2867,72 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             });
         }
 
-        function buildTables() {
+        function getBasicConfigKey() {
+            const carType = document.getElementById("car-type").value;
+            if (carType === "PMCCLC标准轿厢") return "PMCCLC";
+            return currentMachineRoom;
+        }
+
+        function getDefaultQty(item, isThroughCar) {
+            let dq = item.defaultQty || 1;
+            if (isThroughCar && ["door_header", "front_side_column", "door_operator"].includes(item.key)) {
+                dq = 2;
+            }
+            return dq;
+        }
+
+        // 重建前快照表格已填值（v2.13: 切换语言/轿厢类型/贯通等不再丢失用户输入）
+        // prevThroughCar: 重建前的贯通状态（贯通切换时由调用方传入旧值），
+        //   用于判断数量是否被用户手动改过（≠旧默认值才回填，保证贯通 1↔2 逻辑正常）
+        function snapshotTableValues(prevThroughCar) {
+            const snap = {};
+            const basicByKey = {};
+            (BASIC_CONFIG[getBasicConfigKey()] || BASIC_CONFIG["有机房"] || []).forEach(it => { basicByKey[it.key] = it; });
+            const throughPrev = prevThroughCar === "是";
+            document.querySelectorAll(".table-row[data-section]").forEach(row => {
+                const sec = row.dataset.section, key = row.dataset.key;
+                const unitInput = row.querySelector("input[data-role='unit']");
+                const qtyInput = row.querySelector("input[data-role='quantity']");
+                const drawingInput = row.querySelector("input[data-role='drawing']");
+                const floorSel = row.querySelector("select[data-role='floor-material']");
+                let userQty = null;
+                if (qtyInput) {
+                    let prevDefault = 1;
+                    if (sec === "basic" && basicByKey[key]) prevDefault = getDefaultQty(basicByKey[key], throughPrev);
+                    if (qtyInput.value !== String(prevDefault)) userQty = qtyInput.value;
+                }
+                snap[sec + "|" + key] = {
+                    drawing: drawingInput ? drawingInput.value : "",
+                    unit: unitInput ? unitInput.value : "",
+                    qty: userQty,
+                    manual: unitInput ? unitInput.dataset.manual === "true" : false,
+                    floorSel: floorSel ? floorSel.value : ""
+                };
+            });
+            return snap;
+        }
+
+        function restoreTableValues(snap) {
+            if (!snap) return;
+            document.querySelectorAll(".table-row[data-section]").forEach(row => {
+                const s = snap[row.dataset.section + "|" + row.dataset.key];
+                if (!s) return;
+                const unitInput = row.querySelector("input[data-role='unit']");
+                const qtyInput = row.querySelector("input[data-role='quantity']");
+                const drawingInput = row.querySelector("input[data-role='drawing']");
+                const floorSel = row.querySelector("select[data-role='floor-material']");
+                if (drawingInput && s.drawing) drawingInput.value = s.drawing;
+                if (floorSel && s.floorSel) floorSel.value = s.floorSel;
+                if (unitInput && s.unit !== "") {
+                    unitInput.value = s.unit;
+                    if (s.manual) unitInput.dataset.manual = "true";
+                }
+                if (qtyInput && s.qty != null) qtyInput.value = s.qty;
+            });
+        }
+
+        function buildTables(preserveValues = true, prevThroughCar) {
+            const snap = preserveValues ? snapshotTableValues(prevThroughCar) : null;
             const basicBody = document.getElementById("basic-body");
             const specialBody = document.getElementById("special-body");
             basicBody.innerHTML = "";
@@ -2924,12 +2989,7 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                 qtyInput.className = "field-input small-input-qty";
                 
                 // Determine default quantity
-                let defaultQty = item.defaultQty || 1;
-                // Override for Through Car
-                if (isThroughCar && ["door_header", "front_side_column", "door_operator"].includes(item.key)) {
-                    defaultQty = 2;
-                }
-                qtyInput.value = defaultQty.toString();
+                qtyInput.value = String(getDefaultQty(item, isThroughCar));
                 
                 qtyInput.dataset.role = "quantity";
                 qtyCell.appendChild(qtyInput);
@@ -3045,6 +3105,9 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
 
                 specialBody.appendChild(row);
             });
+
+            // 重建后回填用户已填值（图号/单重公式/数量/地板材质），避免切换丢失
+            restoreTableValues(snap);
 
             attachTableEvents();
             recalculateAll();
@@ -3766,6 +3829,7 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             const toggleBtn = document.getElementById("through-car-toggle");
             const toggleInput = document.getElementById("through-car");
             toggleBtn.addEventListener("click", function() {
+                const prevThrough = toggleInput.value;
                 if (toggleInput.value === "否") {
                     toggleInput.value = "是";
                     toggleBtn.textContent = "是";
@@ -3778,7 +3842,8 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
                     toggleBtn.style.borderColor = "";
                 }
                 // Rebuild tables to update default quantities (1 vs 2)
-                buildTables();
+                // 传入切换前的贯通状态，便于快照区分"默认数量"与"用户手改数量"
+                buildTables(true, prevThrough);
                 recalculateAll();
             });
 
@@ -4133,7 +4198,8 @@ ${htmlContent.replace(/<head>[\s\S]*?<\/head>/i, '').replace(/<link[^>]*>/g, '')
             }
 
             // 先重建表格（依赖项目参数），再填入重量数据
-            buildTables();
+            // 导入场景不保留当前页面的旧值（preserveValues=false）
+            buildTables(false);
             updateSWInputType();
 
             // 填入重量明细数据
